@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="Widget.MoneyMate.Button.Toggle" parent="Widget.MaterialComponents.Button.OutlinedButton">
+        <item name="android:minWidth">140dp</item>
+        <item name="android:minHeight">48dp</item>
+        <item name="android:textSize">16sp</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:textColor">@color/toggle_text_color</item>
+        <item name="backgroundTint">@color/toggle_background_color</item>
+        <item name="rippleColor">@color/ripple_color</item>
+        <item name="android:stateListAnimator">@animator/toggle_button_animator</item>
+    </style>
+
+    <style name="Widget.MoneyMate.ButtonToggleGroup" parent="Widget.MaterialComponents.MaterialButtonToggleGroup">
+        <item name="android:background">@drawable/toggle_group_background</item>
+        <item name="singleSelection">true</item>
+        <item name="selectionRequired">true</item>
+        <item name="cornerRadius">24dp</item>
+        <item name="android:elevation">0dp</item>
+    </style>
+</resources> 
