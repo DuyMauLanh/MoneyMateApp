@@ -7,17 +7,17 @@ import androidx.appcompat.app.AppCompatActivity
 import com.example.moneymate.databinding.ActivityLoginBinding
 
 class LoginActivity : AppCompatActivity() {
-    
+
     private lateinit var binding: ActivityLoginBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
-        
+
         setupClickListeners()
     }
-    
+
     private fun setupClickListeners() {
         // Handle back button click
         binding.btnBack.setOnClickListener {
@@ -29,13 +29,33 @@ class LoginActivity : AppCompatActivity() {
             val email = binding.etEmail.text.toString()
             val password = binding.etPassword.text.toString()
 
-            if (validateCredentials(email, password)) {
-                // Navigate to TransactionActivity
-                startActivity(Intent(this, TransactionActivity::class.java))
-                finish() // Close LoginActivity
-            } else {
-                Toast.makeText(this, "Invalid email or password", Toast.LENGTH_SHORT).show()
+
+            if (email.isEmpty() || password.isEmpty()) {
+                Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
             }
+
+            val db = openOrCreateDatabase("moneynote.db", MODE_PRIVATE, null)
+
+            val cursor = db.rawQuery(
+                "SELECT * FROM users WHERE email = ? AND password = ?",
+                arrayOf(email, password)
+            )
+
+            if (cursor.moveToFirst()) {
+                // Đăng nhập thành công
+                Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
+
+                startActivity(Intent(this, TransactionActivity::class.java))
+                finish()
+            } else {
+                // Đăng nhập thất bại
+                Toast.makeText(this, "Sai email hoặc mật khẩu", Toast.LENGTH_SHORT).show()
+            }
+
+            cursor.close()
+            db.close()
+
         }
 
         // Forgot password click
