@@ -2,8 +2,10 @@ package com.example.moneymate.fragment
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.app.Dialog
+import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
@@ -15,15 +17,19 @@ import android.view.Window
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import androidx.room.Room
 import com.example.moneymate.R
 import com.example.moneymate.adapter.CategoryAdapter
 import com.example.moneymate.adapter.IconAdapter
+import com.example.moneymate.database.AppDatabase
 import com.example.moneymate.databinding.FragmentTransactionBinding
 import com.example.moneymate.model.Category
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -34,6 +40,7 @@ class TransactionFragment : Fragment() {
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private lateinit var categoryAdapter: CategoryAdapter
     private var selectedIconResId: Int = -1
+
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -51,33 +58,51 @@ class TransactionFragment : Fragment() {
         setupListeners()
     }
 
+    @SuppressLint("SuspiciousIndentation")
     private fun setupCategoryGrid() {
-        val categories = mutableListOf(
-            Category("Salary", R.drawable.ic_salary),
-            Category("Food", R.drawable.ic_food),
-            Category("Transport", R.drawable.ic_transport),
-            Category("Shopping", R.drawable.ic_shopping),
-            Category("Bills", R.drawable.ic_bills),
-            Category("Entertainment", R.drawable.ic_entertainment),
-            Category("Health", R.drawable.ic_health),
-            Category("Education", R.drawable.ic_education),
-            Category("Other", R.drawable.ic_other)
+        val db = Room.databaseBuilder(
+            requireContext(),
+            AppDatabase::class.java,
+            "moneyapp.db"
+        ).build()
+        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+
+        val category = mutableListOf(
+            Category(0, userId, "Salary", "income", R.drawable.ic_salary, true),
+            Category(0, userId, "Food", "income", R.drawable.ic_food, true),
+            Category(0, userId, "Transport", "income", R.drawable.ic_transport, true),
+            Category(0, userId, "Shopping", "income", R.drawable.ic_shopping, true),
+            Category(0, userId, "Bills", "income", R.drawable.ic_bills, true),
+            Category(0, userId, "Entertainment", "income", R.drawable.ic_entertainment, true),
+            Category(0, userId, "Health", "income", R.drawable.ic_health, true),
+            Category(0, userId, "Education", "income", R.drawable.ic_education, true),
+            Category(0, userId, "Other", "income", R.drawable.ic_other, true)
         )
 
-        categoryAdapter = CategoryAdapter(
-            categories = categories,
-            onCategoryClick = { category ->
-                Toast.makeText(context, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
-            },
-            onAddCategoryClick = {
-                showAddCategoryDialog()
+        // Insert vào DB trong coroutine
+        lifecycleScope.launch {
+            val existing = db.categoryDao().getCategoriesByUser(userId)
+            if (existing.isEmpty()) {
+                category.forEach { db.categoryDao().insert(it) }
             }
-        )
 
-        binding.categoryRecyclerView.apply {
-            layoutManager = GridLayoutManager(context, 3)
-            adapter = categoryAdapter
+            val categories: MutableList<Category> = db.categoryDao().getCategoriesByUser(userId).toMutableList()
+            categoryAdapter = CategoryAdapter(
+                categories = categories,
+                onCategoryClick = { category ->
+                    Toast.makeText(context, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
+                },
+                onAddCategoryClick = {
+                    showAddCategoryDialog()
+                }
+            )
+            binding.categoryRecyclerView.apply {
+                layoutManager = GridLayoutManager(context, 3)
+                adapter = categoryAdapter
+            }
         }
+
     }
 
     private fun setupViews() {
@@ -165,6 +190,13 @@ class TransactionFragment : Fragment() {
     }
 
     private fun showAddCategoryDialog() {
+        val db = Room.databaseBuilder(
+            requireContext(),
+            AppDatabase::class.java,
+            "moneyapp.db"
+        ).build()
+        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
         val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_add_category)
@@ -213,9 +245,19 @@ class TransactionFragment : Fragment() {
                 Toast.makeText(context, "Please select an icon", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
-
-            categoryAdapter.addCategory(Category(name, selectedIconResId))
-            dialog.dismiss()
+            val newCategory = Category(
+                user_id = userId,       // truyền user_id hiện tại
+                name = name,
+                type = "income",           // "income" hoặc "expense"
+                icon = selectedIconResId,       // ví dụ: "ic_food", "ic_gift"
+                is_default = false
+            )
+            lifecycleScope.launch {
+                val insertedId = db.categoryDao().insert(newCategory) // trả về id (Long)
+                val newCategoryWithId = newCategory.copy(id = insertedId.toInt())
+                categoryAdapter.addCategory(newCategoryWithId)
+                dialog.dismiss()
+            }
         }
 
         dialog.show()

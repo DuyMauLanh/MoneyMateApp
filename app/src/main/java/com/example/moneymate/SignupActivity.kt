@@ -7,10 +7,24 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.moneymate.database.AppDatabase
 import com.example.moneymate.databinding.ActivitySignupBinding
+import com.example.moneymate.model.User
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class SignupActivity : AppCompatActivity() {
     private lateinit var binding: ActivitySignupBinding
+    private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "moneyapp.db"
+        ).fallbackToDestructiveMigration().build()
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -34,48 +48,36 @@ class SignupActivity : AppCompatActivity() {
             val email: String = binding.etEmail.text.toString().trim()
             val password: String = binding.etPassword.text.toString().trim()
 
-            val values: ContentValues = ContentValues()
+            val userDao = db.userDao()
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
-            values.put("name", name)
-            values.put("password", password)
-            values.put("email", email)
 
-            // Thêm user vào DB
-            val db = openOrCreateDatabase("moneynote.db", MODE_PRIVATE, null)
+            lifecycleScope.launch {
+                try {
+                    val existingUser = withContext(Dispatchers.IO) {
+                        userDao.getUserByEmail(email)
+                    }
 
-            try {
-                val createTableQuery = """
-                CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    email TEXT NOT NULL UNIQUE,
-                    password TEXT NOT NULL
-                );
-            """.trimIndent()
-
-                db.execSQL(createTableQuery)
-            } catch (e: Exception) {
-                println("exist table")
-            }
-
-            val result = db.insert("users", null, values)
-
-            try {
-                if (result == -1L) {
-                    Toast.makeText(this, "Lỗi khi tạo tài khoản", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, "Tạo tài khoản thành công", Toast.LENGTH_SHORT).show()
-                    startActivity(Intent(this, MainActivity::class.java))
-                    finish()
+                    if (existingUser != null) {
+                        Toast.makeText(this@SignupActivity, "Email đã được sử dụng", Toast.LENGTH_SHORT).show()
+                    } else {
+                        withContext(Dispatchers.IO) {
+                            userDao.insert(User(name = name, email = email, password = password))
+                        }
+                        Toast.makeText(this@SignupActivity, "Tạo tài khoản thành công", Toast.LENGTH_SHORT).show()
+                        startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+                        finish()
+                    }
+                } catch (e: Exception) {
+                    println("Lỗi: ${e.message}")
+                    Toast.makeText(this@SignupActivity, "Lỗi: ${e.message}", Toast.LENGTH_LONG).show()
                 }
-            } catch (e: Exception) {
-                Toast.makeText(this, "Lỗi: ${e.message}", Toast.LENGTH_LONG).show()
             }
+
         }
 
         // Handle login text click

@@ -7,11 +7,25 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
+import androidx.room.Room
+import com.example.moneymate.database.AppDatabase
 import com.example.moneymate.databinding.ActivityLoginBinding
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class LoginActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityLoginBinding
+    private val db by lazy {
+        Room.databaseBuilder(
+            applicationContext,
+            AppDatabase::class.java,
+            "moneyapp.db"
+        ).build()
+    }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,24 +53,26 @@ class LoginActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // Check credentials in database
-            val db = openOrCreateDatabase("moneynote.db", MODE_PRIVATE, null)
-            val cursor = db.rawQuery(
-                "SELECT * FROM users WHERE email = ? AND password = ?",
-                arrayOf(email, password)
-            )
+            val userDao = db.userDao()
 
-            if (cursor.moveToFirst()) {
-                Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, MainActivity::class.java))
-                finish()
-            } else {
-                Toast.makeText(this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show()
+            lifecycleScope.launch {
+                val user = withContext(Dispatchers.IO) {
+                    userDao.getUserByEmail(email)
+                }
+
+                if (user != null && user.password == password) {
+                    Toast.makeText(this@LoginActivity, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
+                    val sharedPref = getSharedPreferences("user_prefs", MODE_PRIVATE)
+                    sharedPref.edit().putInt("user_id", user.id).apply()
+
+                    startActivity(Intent(this@LoginActivity, MainActivity::class.java))
+                    finish()
+                } else {
+                    Toast.makeText(this@LoginActivity, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show()
+                }
             }
-
-            cursor.close()
-            db.close()
         }
+
 
         binding.tvForgotPassword.setOnClickListener {
             // TODO: Implement forgot password functionality
