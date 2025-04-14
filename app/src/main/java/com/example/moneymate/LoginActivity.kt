@@ -1,8 +1,11 @@
 package com.example.moneymate
 
+import android.content.ContentValues
 import android.content.Intent
+import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
 import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import com.example.moneymate.databinding.ActivityLoginBinding
 
@@ -12,6 +15,7 @@ class LoginActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
@@ -21,57 +25,48 @@ class LoginActivity : AppCompatActivity() {
     private fun setupClickListeners() {
         // Handle back button click
         binding.btnBack.setOnClickListener {
-            onBackPressed()
+            startActivity(Intent(this, WelcomeActivity::class.java))
+            finish()
         }
 
-        // Login button click
+        // Handle login button click
         binding.btnLogin.setOnClickListener {
-            val email = binding.etEmail.text.toString()
-            val password = binding.etPassword.text.toString()
-
+            val email: String = binding.etEmail.text.toString().trim()
+            val password: String = binding.etPassword.text.toString().trim()
 
             if (email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng nhập email và mật khẩu", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Check credentials in database
             val db = openOrCreateDatabase("moneynote.db", MODE_PRIVATE, null)
-
             val cursor = db.rawQuery(
                 "SELECT * FROM users WHERE email = ? AND password = ?",
                 arrayOf(email, password)
             )
 
             if (cursor.moveToFirst()) {
-                // Đăng nhập thành công
                 Toast.makeText(this, "Đăng nhập thành công", Toast.LENGTH_SHORT).show()
-
-                startActivity(Intent(this, TransactionActivity::class.java))
+                startActivity(Intent(this, MainActivity::class.java))
                 finish()
             } else {
-                // Đăng nhập thất bại
-                Toast.makeText(this, "Sai email hoặc mật khẩu", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "Email hoặc mật khẩu không đúng", Toast.LENGTH_SHORT).show()
             }
 
             cursor.close()
             db.close()
-
         }
 
-        // Forgot password click
         binding.tvForgotPassword.setOnClickListener {
             // TODO: Implement forgot password functionality
             Toast.makeText(this, "Forgot password clicked", Toast.LENGTH_SHORT).show()
         }
 
-        // Sign up text click
+        // Handle sign up text click
         binding.tvSignUp.setOnClickListener {
-            startActivity(Intent(this, MainActivity::class.java))
+            startActivity(Intent(this, SignupActivity::class.java))
+            finish()
         }
-    }
-
-    private fun validateCredentials(email: String, password: String): Boolean {
-        // Check for admin credentials
-        return email == "admin@gmail.com" && password == "admin"
     }
 } 

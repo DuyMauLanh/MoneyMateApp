@@ -1,4 +1,4 @@
-package com.example.moneymate
+package com.example.moneymate.fragment
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
@@ -8,33 +8,44 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Bundle
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.Window
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
+import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
+import com.example.moneymate.R
 import com.example.moneymate.adapter.CategoryAdapter
 import com.example.moneymate.adapter.IconAdapter
-import com.example.moneymate.databinding.ActivityTransactionBinding
+import com.example.moneymate.databinding.FragmentTransactionBinding
 import com.example.moneymate.model.Category
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import java.text.SimpleDateFormat
 import java.util.*
 
-class TransactionActivity : AppCompatActivity() {
-    private lateinit var binding: ActivityTransactionBinding
+class TransactionFragment : Fragment() {
+    private var _binding: FragmentTransactionBinding? = null
+    private val binding get() = _binding!!
     private val calendar = Calendar.getInstance()
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private lateinit var categoryAdapter: CategoryAdapter
     private var selectedIconResId: Int = -1
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        binding = ActivityTransactionBinding.inflate(layoutInflater)
-        setContentView(binding.root)
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View {
+        _binding = FragmentTransactionBinding.inflate(inflater, container, false)
+        return binding.root
+    }
 
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
         setupCategoryGrid()
         setupViews()
         setupListeners()
@@ -56,8 +67,7 @@ class TransactionActivity : AppCompatActivity() {
         categoryAdapter = CategoryAdapter(
             categories = categories,
             onCategoryClick = { category ->
-                // Handle category selection
-                Toast.makeText(this, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
             },
             onAddCategoryClick = {
                 showAddCategoryDialog()
@@ -65,7 +75,7 @@ class TransactionActivity : AppCompatActivity() {
         )
 
         binding.categoryRecyclerView.apply {
-            layoutManager = GridLayoutManager(this@TransactionActivity, 3)
+            layoutManager = GridLayoutManager(context, 3)
             adapter = categoryAdapter
         }
     }
@@ -99,36 +109,13 @@ class TransactionActivity : AppCompatActivity() {
         binding.btnSubmit.setOnClickListener {
             // TODO: Handle transaction submission
         }
-
-        // Bottom navigation
-        binding.bottomNavigation.setOnItemSelectedListener { item ->
-            when (item.itemId) {
-                R.id.navigation_add -> {
-                    // Stay on current screen
-                    true
-                }
-                R.id.navigation_report -> {
-                    Toast.makeText(this, "Switching to Reports screen", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.navigation_calendar -> {
-                    Toast.makeText(this, "Switching to Calendar screen", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                R.id.navigation_more -> {
-                    Toast.makeText(this, "Switching to More screen", Toast.LENGTH_SHORT).show()
-                    true
-                }
-                else -> false
-            }
-        }
     }
 
     private fun updateToggleButtonColors(isIncome: Boolean) {
-        val incomeColor = ContextCompat.getColor(this, R.color.income_color)
-        val expenseColor = ContextCompat.getColor(this, R.color.expense_color)
-        val textColor = ContextCompat.getColor(this, R.color.text_primary)
-        val dividerColor = ContextCompat.getColor(this, R.color.divider_color)
+        val incomeColor = ContextCompat.getColor(requireContext(), R.color.income_color)
+        val expenseColor = ContextCompat.getColor(requireContext(), R.color.expense_color)
+        val textColor = ContextCompat.getColor(requireContext(), R.color.text_primary)
+        val dividerColor = ContextCompat.getColor(requireContext(), R.color.divider_color)
 
         binding.btnIncome.apply {
             setTextColor(if (isIncome) incomeColor else textColor)
@@ -143,7 +130,7 @@ class TransactionActivity : AppCompatActivity() {
 
     private fun showDatePicker() {
         DatePickerDialog(
-            this,
+            requireContext(),
             { _, year, month, dayOfMonth ->
                 calendar.set(year, month, dayOfMonth)
                 binding.etDate.setText(dateFormatter.format(calendar.time))
@@ -156,16 +143,16 @@ class TransactionActivity : AppCompatActivity() {
 
     private fun updateSubmitButtonWithAnimation(isIncome: Boolean) {
         val colorFrom = ContextCompat.getColor(
-            this,
+            requireContext(),
             if (isIncome) R.color.expense_color else R.color.income_color
         )
         val colorTo = ContextCompat.getColor(
-            this,
+            requireContext(),
             if (isIncome) R.color.income_color else R.color.expense_color
         )
 
         ValueAnimator.ofObject(ArgbEvaluator(), colorFrom, colorTo).apply {
-            duration = 300 // Animation duration in milliseconds
+            duration = 300
             addUpdateListener { animator ->
                 binding.btnSubmit.setBackgroundColor(animator.animatedValue as Int)
             }
@@ -178,7 +165,7 @@ class TransactionActivity : AppCompatActivity() {
     }
 
     private fun showAddCategoryDialog() {
-        val dialog = Dialog(this)
+        val dialog = Dialog(requireContext())
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE)
         dialog.setContentView(R.layout.dialog_add_category)
         dialog.window?.setBackgroundDrawable(ColorDrawable(Color.TRANSPARENT))
@@ -187,7 +174,6 @@ class TransactionActivity : AppCompatActivity() {
         val iconRecyclerView: RecyclerView = dialog.findViewById(R.id.iconRecyclerView)
         val addButton: MaterialButton = dialog.findViewById(R.id.addButton)
 
-        // Additional icons for selection
         val icons = listOf(
             R.drawable.ic_salary,
             R.drawable.ic_food,
@@ -212,7 +198,7 @@ class TransactionActivity : AppCompatActivity() {
             R.drawable.ic_other
         )
 
-        iconRecyclerView.layoutManager = GridLayoutManager(this, 5)
+        iconRecyclerView.layoutManager = GridLayoutManager(context, 5)
         iconRecyclerView.adapter = IconAdapter(icons) { iconResId ->
             selectedIconResId = iconResId
         }
@@ -224,7 +210,7 @@ class TransactionActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
             if (selectedIconResId == -1) {
-                Toast.makeText(this, "Please select an icon", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "Please select an icon", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -233,5 +219,10 @@ class TransactionActivity : AppCompatActivity() {
         }
 
         dialog.show()
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 } 

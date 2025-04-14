@@ -28,9 +28,15 @@
     <string name="add_category">Thêm danh mục</string>
     <string name="add_income">Nhập khoản thu</string>
     <string name="add_expense">Nhập khoản chi</string>
+    <string name="income_categories">Danh mục thu</string>
+    <string name="expense_categories">Danh mục chi</string>
     <!-- Bottom Navigation -->
     <string name="nav_add">Nhập</string>
     <string name="nav_report">Báo cáo</string>
     <string name="nav_calendar">Lịch</string>
     <string name="nav_more">Khác</string>
+    <string name="input">Input</string>
+    <string name="report">Report</string>
+    <string name="calendar">Calendar</string>
+    <string name="more">More</string>
 </resources>
