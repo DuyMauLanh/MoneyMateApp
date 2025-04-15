@@ -26,7 +26,7 @@ class CategoryAdapter(
         private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
         fun bind(category: Category, position: Int) {
-            iconView.setImageResource(category.iconResId)
+            category.icon?.let { iconView.setImageResource(it) }
             nameView.text = category.name
             
             // Show/hide delete button based on selection
@@ -49,7 +49,7 @@ class CategoryAdapter(
             
             deleteButton.setOnClickListener {
                 if (position < categories.size) {
-                    categories.removeAt(position)
+//                    categories.removeAt(position)
                     notifyItemRemoved(position)
                     updateSelectedPosition(-1)
                 }
@@ -102,8 +102,7 @@ class CategoryAdapter(
     }
 
     fun addCategory(category: Category) {
-        categories.add(category)
+        (categories as MutableList).add(category) // Ép kiểu vì `categories` là List
         notifyItemInserted(categories.size - 1)
-        updateSelectedPosition(-1)
     }
 } 

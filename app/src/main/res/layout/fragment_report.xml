@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/background_color">
+
+    <!-- Top Toggle Button (Same as Transaction Fragment) -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/toggleGroup"
+        style="@style/Widget.MoneyMate.ButtonToggleGroup"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnIncome"
+            style="@style/Widget.MoneyMate.Button.Toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tien_thu" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnExpense"
+            style="@style/Widget.MoneyMate.Button.Toggle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/tien_chi" />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- Main Content ScrollView -->
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/nestedScrollView"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/toggleGroup">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <!-- Chart and List Section -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="16dp">
+
+                <!-- Chart Section -->
+                <com.github.mikephil.charting.charts.PieChart
+                    android:id="@+id/pieChart"
+                    android:layout_width="match_parent"
+                    android:layout_height="300dp"
+                    android:layout_marginBottom="16dp" />
+
+                <!-- Total Amount Header -->
+                <TextView
+                    android:id="@+id/tvTotalAmount"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="16dp"
+                    android:text="Total: 15,000,000đ"
+                    android:textAlignment="center"
+                    android:textColor="@color/text_primary"
+                    android:textSize="24sp"
+                    android:textStyle="bold" />
+
+                <!-- Detailed List Section -->
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/recyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:nestedScrollingEnabled="false" />
+
+            </LinearLayout>
+
+            <!-- Time Navigation Section -->
+            <LinearLayout
+                android:id="@+id/timeNavigationLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingBottom="16dp">
+
+                <!-- Time Selection Toggle -->
+                <com.google.android.material.button.MaterialButtonToggleGroup
+                    android:id="@+id/timeToggleGroup"
+                    style="@style/Widget.MoneyMate.ButtonToggleGroup"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_horizontal">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnMonthly"
+                        style="@style/Widget.MoneyMate.Button.Toggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Monthly" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btnYearly"
+                        style="@style/Widget.MoneyMate.Button.Toggle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Yearly" />
+
+                </com.google.android.material.button.MaterialButtonToggleGroup>
+
+                <!-- Month/Year Navigation -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center"
+                    android:orientation="horizontal">
+
+                    <ImageButton
+                        android:id="@+id/btnPrevious"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_arrow_left"
+                        android:tint="@color/text_primary" />
+
+                    <TextView
+                        android:id="@+id/tvCurrentPeriod"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginHorizontal="16dp"
+                        android:text="March 2024"
+                        android:textColor="@color/text_primary"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <ImageButton
+                        android:id="@+id/btnNext"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:src="@drawable/ic_arrow_right"
+                        android:tint="@color/text_primary" />
+
+                </LinearLayout>
+            </LinearLayout>
+
+        </LinearLayout>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout> 

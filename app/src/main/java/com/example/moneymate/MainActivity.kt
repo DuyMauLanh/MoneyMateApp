@@ -1,94 +1,58 @@
 package com.example.moneymate
 
-import android.content.ContentValues
-import android.content.Intent
-import android.database.sqlite.SQLiteDatabase
 import android.os.Bundle
-import android.widget.Toast
-import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
-import com.example.moneymate.databinding.ActivitySignupBinding
-import kotlin.math.log
+import androidx.fragment.app.Fragment
+import com.example.moneymate.databinding.ActivityMainBinding
+import com.example.moneymate.fragment.CalendarFragment
+import com.example.moneymate.fragment.MoreFragment
+import com.example.moneymate.fragment.ReportFragment
+import com.example.moneymate.fragment.TransactionFragment
+import com.google.android.material.bottomnavigation.BottomNavigationView
 
 class MainActivity : AppCompatActivity() {
-
-    private lateinit var binding: ActivitySignupBinding
+    private lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        enableEdgeToEdge()
-        binding = ActivitySignupBinding.inflate(layoutInflater)
+        binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-
-        setupClickListeners()
+        setupBottomNavigation()
+        if (savedInstanceState == null) {
+            supportFragmentManager.beginTransaction()
+                .replace(R.id.fragmentContainer, TransactionFragment())
+                .commit()
+        }
     }
 
-    private fun setupClickListeners() {
-        // Handle back button click
-        binding.btnBack.setOnClickListener {
-            onBackPressed()
-        }
-
-        // Handle create account button click
-        binding.btnCreateAccount.setOnClickListener {
-            val name: String = binding.etName.text.toString().trim()
-            val email: String = binding.etEmail.text.toString().trim()
-            val password: String = binding.etPassword.text.toString().trim()
-
-            val values: ContentValues = ContentValues()
-
-
-            if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
-                return@setOnClickListener
-            }
-
-            values.put("name", name)
-            values.put("password", password)
-            values.put("email", email)
-
-
-            // Thêm user vào DB
-            val db = openOrCreateDatabase("moneynote.db", MODE_PRIVATE, null)
-
-            try {
-                val createTableQuery = """
-                CREATE TABLE IF NOT EXISTS users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    name TEXT NOT NULL,
-                    email TEXT NOT NULL UNIQUE,
-                    password TEXT NOT NULL
-                );
-            """.trimIndent()
-
-                db.execSQL(createTableQuery)
-            } catch (e: Exception) {
-                println("exist table")
-            }
-
-            val result = db.insert("users", null, values)
-
-            try {
-                if (result == -1L) {
-                    Toast.makeText(this, "Lỗi khi tạo tài khoản", Toast.LENGTH_LONG).show()
-                } else {
-                    Toast.makeText(this, "Tạo tài khoản thành công", Toast.LENGTH_SHORT).show()
-
+    private fun setupBottomNavigation() {
+        binding.bottomNavigation.setOnItemSelectedListener { item ->
+            when (item.itemId) {
+                R.id.navigation_input -> {
+                    replaceFragment(TransactionFragment())
+                    true
                 }
-
-                // Sau khi đăng ký thành công, chuyển sang LoginActivity
-                startActivity(Intent(this, LoginActivity::class.java))
-                finish()
-            } catch (e: Exception) {
-                Toast.makeText(this, "Lỗi: ${e.message}", Toast.LENGTH_LONG).show()
+                R.id.navigation_report -> {
+                    replaceFragment(ReportFragment())
+                    true
+                }
+                R.id.navigation_calendar -> {
+                    replaceFragment(CalendarFragment())
+                    true
+                }
+                R.id.navigation_more -> {
+                    replaceFragment(MoreFragment())
+                    true
+                }
+                else -> false
             }
         }
+    }
 
-        // Handle login text click
-        binding.tvLogin.setOnClickListener {
-            startActivity(Intent(this, LoginActivity::class.java))
-            finish()
-        }
+    private fun replaceFragment(fragment: Fragment) {
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, fragment)
+            .commit()
     }
 }
