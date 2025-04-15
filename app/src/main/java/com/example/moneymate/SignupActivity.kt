@@ -12,6 +12,7 @@ import androidx.room.Room
 import com.example.moneymate.database.AppDatabase
 import com.example.moneymate.databinding.ActivitySignupBinding
 import com.example.moneymate.model.User
+import com.google.android.material.checkbox.MaterialCheckBox
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -47,6 +48,7 @@ class SignupActivity : AppCompatActivity() {
             val name: String = binding.etName.text.toString().trim()
             val email: String = binding.etEmail.text.toString().trim()
             val password: String = binding.etPassword.text.toString().trim()
+            val cbTerms: MaterialCheckBox = findViewById(R.id.cbTerms)
 
             val userDao = db.userDao()
 
@@ -55,29 +57,31 @@ class SignupActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-
-            lifecycleScope.launch {
-                try {
-                    val existingUser = withContext(Dispatchers.IO) {
-                        userDao.getUserByEmail(email)
-                    }
-
-                    if (existingUser != null) {
-                        Toast.makeText(this@SignupActivity, "Email đã được sử dụng", Toast.LENGTH_SHORT).show()
-                    } else {
-                        withContext(Dispatchers.IO) {
-                            userDao.insert(User(name = name, email = email, password = password))
+            if (!cbTerms.isChecked) {
+                Toast.makeText(this, "Bạn cần đồng ý với chính sách bảo mật để tiếp tục.", Toast.LENGTH_SHORT).show()
+            } else {
+                lifecycleScope.launch {
+                    try {
+                        val existingUser = withContext(Dispatchers.IO) {
+                            userDao.getUserByEmail(email)
                         }
-                        Toast.makeText(this@SignupActivity, "Tạo tài khoản thành công", Toast.LENGTH_SHORT).show()
-                        startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
-                        finish()
+
+                        if (existingUser != null) {
+                            Toast.makeText(this@SignupActivity, "Email đã được sử dụng", Toast.LENGTH_SHORT).show()
+                        } else {
+                            withContext(Dispatchers.IO) {
+                                userDao.insert(User(name = name, email = email, password = password))
+                            }
+                            Toast.makeText(this@SignupActivity, "Tạo tài khoản thành công", Toast.LENGTH_SHORT).show()
+                            startActivity(Intent(this@SignupActivity, LoginActivity::class.java))
+                            finish()
+                        }
+                    } catch (e: Exception) {
+                        println("Lỗi: ${e.message}")
+                        Toast.makeText(this@SignupActivity, "Lỗi: ${e.message}", Toast.LENGTH_LONG).show()
                     }
-                } catch (e: Exception) {
-                    println("Lỗi: ${e.message}")
-                    Toast.makeText(this@SignupActivity, "Lỗi: ${e.message}", Toast.LENGTH_LONG).show()
                 }
             }
-
         }
 
         // Handle login text click

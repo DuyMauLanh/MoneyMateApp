@@ -14,6 +14,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
+import android.widget.EditText
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
@@ -116,6 +117,8 @@ class TransactionFragment : Fragment() {
     }
 
     private fun setupListeners() {
+        val etAmount: EditText = binding.etAmount
+        val etNote: EditText = binding.etNote
         // Toggle group listener
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
@@ -133,6 +136,9 @@ class TransactionFragment : Fragment() {
         // Submit button
         binding.btnSubmit.setOnClickListener {
             // TODO: Handle transaction submission
+            etAmount.text.clear()  // Thiết lập giá trị của etAmount thành rỗng
+            etNote.text.clear()    // Thiết lập giá trị của etNote thành rỗng
+
         }
     }
 
