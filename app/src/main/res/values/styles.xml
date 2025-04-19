@@ -9,6 +9,9 @@
         <item name="backgroundTint">@color/toggle_background_color</item>
         <item name="rippleColor">@color/ripple_color</item>
         <item name="android:stateListAnimator">@animator/toggle_button_animator</item>
+        <item name="strokeWidth">0dp</item>
+        <item name="android:insetTop">0dp</item>
+        <item name="android:insetBottom">0dp</item>
     </style>
 
     <style name="Widget.MoneyMate.ButtonToggleGroup" parent="Widget.MaterialComponents.MaterialButtonToggleGroup">
@@ -17,6 +20,7 @@
         <item name="selectionRequired">true</item>
         <item name="cornerRadius">24dp</item>
         <item name="android:elevation">0dp</item>
+        <item name="strokeWidth">0dp</item>
     </style>
 
     <style name="MonthYearPickerTheme" parent="ThemeOverlay.MaterialComponents.Dialog">

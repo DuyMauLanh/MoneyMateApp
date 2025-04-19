@@ -68,11 +68,11 @@ class ReportFragment : Fragment() {
             adapter = reportAdapter
         }
 
-        // Set initial date
-        updateDateDisplay()
-
-        // Set initial time selection
+        // Set initial time selection first
         binding.timeToggleGroup.check(binding.btnMonthly.id)
+        
+        // Set initial date display based on Monthly selection
+        updateDateDisplay()
 
         // Set initial income/expense selection
         binding.toggleGroup.check(binding.btnIncome.id)
@@ -92,7 +92,6 @@ class ReportFragment : Fragment() {
         // Time period toggle
         binding.timeToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                val isMonthly = checkedId == binding.btnMonthly.id
                 updateDateDisplay()
                 // TODO: Update data based on time period
             }
