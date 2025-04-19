@@ -3,28 +3,35 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="8dp"
+    android:layout_marginHorizontal="8dp"
+    android:layout_marginVertical="4dp"
     app:cardCornerRadius="8dp"
     app:cardElevation="2dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="12dp">
+        android:orientation="vertical">
 
+        <!-- Main Transaction Row -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center_vertical"
-            android:orientation="horizontal">
+            android:minHeight="64dp"
+            android:orientation="horizontal"
+            android:padding="12dp">
 
+            <!-- Category Icon -->
             <ImageView
                 android:id="@+id/ivTransactionIcon"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
-                android:src="@android:drawable/ic_menu_gallery" />
+                android:background="@drawable/circle_background"
+                android:padding="8dp"
+                android:src="@drawable/ic_expense" />
 
+            <!-- Amount -->
             <TextView
                 android:id="@+id/tvTransactionAmount"
                 android:layout_width="0dp"
@@ -32,9 +39,20 @@
                 android:layout_marginStart="16dp"
                 android:layout_weight="1"
                 android:text="100,000 đ"
+                android:textColor="@color/text_primary"
                 android:textSize="16sp"
                 android:textStyle="bold" />
 
+            <!-- Category Name -->
+            <TextView
+                android:id="@+id/tvTransactionCategory"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="12dp"
+                android:text="Ăn uống"
+                android:textColor="@color/text_secondary" />
+
+            <!-- Expand/Collapse Button -->
             <ImageButton
                 android:id="@+id/btnExpandTransaction"
                 android:layout_width="24dp"
@@ -43,19 +61,38 @@
                 android:src="@drawable/ic_expand" />
         </LinearLayout>
 
+        <!-- Expandable Details -->
         <LinearLayout
             android:id="@+id/transactionDetails"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
             android:orientation="vertical"
+            android:paddingHorizontal="12dp"
+            android:paddingBottom="12dp"
             android:visibility="gone">
 
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_marginBottom="8dp"
+                android:background="@color/divider_color" />
+
+            <!-- Note Label -->
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ghi chú:"
+                android:textColor="@color/text_secondary"
+                android:textSize="14sp" />
+
+            <!-- Note Content -->
             <TextView
                 android:id="@+id/tvTransactionNote"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tiền thưởng" />
+                android:layout_marginTop="4dp"
+                android:text="Tiền thưởng"
+                android:textSize="14sp" />
         </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView> 

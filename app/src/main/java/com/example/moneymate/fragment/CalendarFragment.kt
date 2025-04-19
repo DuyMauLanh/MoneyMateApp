@@ -1,5 +1,6 @@
 package com.example.moneymate.fragment
 
+import android.app.DatePickerDialog
 import android.graphics.Color
 import android.os.Bundle
 import android.view.Gravity
@@ -40,6 +41,7 @@ class CalendarFragment : Fragment() {
         
         setupCalendar()
         setupNavigationButtons()
+        setupMonthYearPicker()
         updateSelectedDateDisplay()
         loadSampleTransactions()
         displayTransactionsForSelectedDate()
@@ -64,6 +66,48 @@ class CalendarFragment : Fragment() {
             populateCalendarGrid()
             updateMonthlySummary()
         }
+    }
+    
+    private fun setupMonthYearPicker() {
+        binding.tvMonthYear.setOnClickListener {
+            showMonthYearPicker()
+        }
+    }
+    
+    private fun showMonthYearPicker() {
+        val calendar = Calendar.getInstance().apply {
+            time = currentDate.time
+        }
+
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            R.style.MonthYearPickerTheme,
+            { _, year, month, _ ->
+                currentDate.set(Calendar.YEAR, year)
+                currentDate.set(Calendar.MONTH, month)
+                updateMonthYearDisplay()
+                populateCalendarGrid()
+                updateMonthlySummary()
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        // Chỉ hiển thị chọn tháng và năm
+        try {
+            val datePickerField = datePickerDialog.javaClass.getDeclaredField("mDatePicker")
+            datePickerField.isAccessible = true
+            val datePicker = datePickerField.get(datePickerDialog) as DatePicker
+            val daySpinner = datePicker.findViewById<View>(
+                resources.getIdentifier("day", "id", "android")
+            )
+            daySpinner?.visibility = View.GONE
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        datePickerDialog.show()
     }
     
     private fun updateMonthYearDisplay() {
@@ -168,13 +212,15 @@ class CalendarFragment : Fragment() {
         val yesterday = dateFormat.format(Calendar.getInstance().apply { add(Calendar.DAY_OF_MONTH, -1) }.time)
         
         transactions[today] = listOf(
-            Transaction("Ăn uống", 150000, "Tiền ăn trưa", false),
-            Transaction("Lương", 5000000, "Lương tháng 1", true)
+            Transaction("Ăn uống", -150000, "Tiền ăn trưa", false),
+            Transaction("Lương", 5000000, "Lương tháng 1", true),
+            Transaction("Di chuyển", -50000, "Tiền xăng", false)
         )
         
         transactions[yesterday] = listOf(
-            Transaction("Di chuyển", 50000, "Tiền taxi", false),
-            Transaction("Thưởng", 1000000, "Thưởng cuối năm", true)
+            Transaction("Di chuyển", -50000, "Tiền taxi", false),
+            Transaction("Thưởng", 1000000, "Thưởng cuối năm", true),
+            Transaction("Mua sắm", -200000, "Quần áo", false)
         )
     }
     
@@ -235,12 +281,13 @@ class CalendarFragment : Fragment() {
         
         val iconView = transactionView.findViewById<ImageView>(R.id.ivTransactionIcon)
         val amountView = transactionView.findViewById<TextView>(R.id.tvTransactionAmount)
+        val categoryView = transactionView.findViewById<TextView>(R.id.tvTransactionCategory)
         val noteView = transactionView.findViewById<TextView>(R.id.tvTransactionNote)
         val detailsContainer = transactionView.findViewById<LinearLayout>(R.id.transactionDetails)
         val expandButton = transactionView.findViewById<ImageButton>(R.id.btnExpandTransaction)
         
-        // Set transaction icon (in a real app, you would use actual icons)
-        iconView.setImageResource(if (transaction.isIncome) R.drawable.ic_income else R.drawable.ic_expense)
+        // Set category name
+        categoryView.text = transaction.category
         
         // Set amount with color
         amountView.text = formatCurrency(transaction.amount)
@@ -255,6 +302,16 @@ class CalendarFragment : Fragment() {
             requireContext(),
             if (transaction.isIncome) R.color.income_color else R.color.expense_color
         ))
+        
+        // Set icon based on category
+        val iconResource = when (transaction.category.lowercase()) {
+            "ăn uống" -> R.drawable.ic_food
+            "di chuyển" -> R.drawable.ic_transport
+            "mua sắm" -> R.drawable.ic_shopping
+            "lương", "thưởng" -> R.drawable.ic_salary
+            else -> if (transaction.isIncome) R.drawable.ic_income else R.drawable.ic_expense
+        }
+        iconView.setImageResource(iconResource)
         
         // Setup expand/collapse functionality
         expandButton.setOnClickListener {

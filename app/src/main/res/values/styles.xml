@@ -18,4 +18,12 @@
         <item name="cornerRadius">24dp</item>
         <item name="android:elevation">0dp</item>
     </style>
+
+    <style name="MonthYearPickerTheme" parent="ThemeOverlay.MaterialComponents.Dialog">
+        <item name="colorPrimary">@color/primary_color</item>
+        <item name="colorAccent">@color/primary_color</item>
+        <item name="android:windowBackground">@color/background_color</item>
+        <item name="android:textColorPrimary">@color/text_primary</item>
+        <item name="android:textColorSecondary">@color/text_secondary</item>
+    </style>
 </resources> 
