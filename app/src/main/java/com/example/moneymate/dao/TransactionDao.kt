@@ -6,6 +6,7 @@ import androidx.room.Insert
 import androidx.room.Query
 import androidx.room.Update
 import com.example.moneymate.model.Transaction
+import com.example.moneymate.model.TransactionWithCategory
 
 
 @Dao
@@ -24,4 +25,11 @@ interface TransactionDao {
 
     @Delete
     suspend fun delete(transaction: Transaction)
+
+    @Query("SELECT * FROM transactions WHERE transaction_date = :date")
+    suspend fun getTransactionsByDate(date: String): List<Transaction>
+
+    @androidx.room.Transaction
+    @Query("SELECT * FROM transactions WHERE transaction_date = :date")
+    suspend fun getTransactionsWithCategoryByDate(date: String): List<TransactionWithCategory>
 }

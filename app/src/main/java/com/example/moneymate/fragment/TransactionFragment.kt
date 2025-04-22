@@ -9,13 +9,16 @@ import android.content.Context
 import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.Window
 import android.widget.EditText
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
@@ -28,6 +31,7 @@ import com.example.moneymate.adapter.IconAdapter
 import com.example.moneymate.database.AppDatabase
 import com.example.moneymate.databinding.FragmentTransactionBinding
 import com.example.moneymate.model.Category
+import com.example.moneymate.model.Transaction
 import com.google.android.material.button.MaterialButton
 import com.google.android.material.textfield.TextInputEditText
 import kotlinx.coroutines.launch
@@ -41,6 +45,7 @@ class TransactionFragment : Fragment() {
     private val dateFormatter = SimpleDateFormat("dd/MM/yyyy", Locale.getDefault())
     private lateinit var categoryAdapter: CategoryAdapter
     private var selectedIconResId: Int = -1
+    private var selectedCategoryId: Int? = null
 
 
     override fun onCreateView(
@@ -52,6 +57,7 @@ class TransactionFragment : Fragment() {
         return binding.root
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         setupCategoryGrid()
@@ -71,14 +77,14 @@ class TransactionFragment : Fragment() {
 
         val category = mutableListOf(
             Category(0, userId, "Salary", "income", R.drawable.ic_salary, true),
-            Category(0, userId, "Food", "income", R.drawable.ic_food, true),
-            Category(0, userId, "Transport", "income", R.drawable.ic_transport, true),
-            Category(0, userId, "Shopping", "income", R.drawable.ic_shopping, true),
-            Category(0, userId, "Bills", "income", R.drawable.ic_bills, true),
-            Category(0, userId, "Entertainment", "income", R.drawable.ic_entertainment, true),
-            Category(0, userId, "Health", "income", R.drawable.ic_health, true),
-            Category(0, userId, "Education", "income", R.drawable.ic_education, true),
-            Category(0, userId, "Other", "income", R.drawable.ic_other, true)
+            Category(1, userId, "Food", "income", R.drawable.ic_food, true),
+            Category(2, userId, "Transport", "income", R.drawable.ic_transport, true),
+            Category(3, userId, "Shopping", "income", R.drawable.ic_shopping, true),
+            Category(4, userId, "Bills", "income", R.drawable.ic_bills, true),
+            Category(5, userId, "Entertainment", "income", R.drawable.ic_entertainment, true),
+            Category(6, userId, "Health", "income", R.drawable.ic_health, true),
+            Category(7, userId, "Education", "income", R.drawable.ic_education, true),
+            Category(8, userId, "Other", "income", R.drawable.ic_other, true)
         )
 
         // Insert vào DB trong coroutine
@@ -88,10 +94,12 @@ class TransactionFragment : Fragment() {
                 category.forEach { db.categoryDao().insert(it) }
             }
 
-            val categories: MutableList<Category> = db.categoryDao().getCategoriesByUser(userId).toMutableList()
+            val categories: MutableList<Category> =
+                db.categoryDao().getCategoriesByUser(userId).toMutableList()
             categoryAdapter = CategoryAdapter(
                 categories = categories,
                 onCategoryClick = { category ->
+                    selectedCategoryId = category.id
                     Toast.makeText(context, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
                 },
                 onAddCategoryClick = {
@@ -116,6 +124,7 @@ class TransactionFragment : Fragment() {
         updateSubmitButtonWithAnimation(true)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     private fun setupListeners() {
         val etAmount: EditText = binding.etAmount
         val etNote: EditText = binding.etNote
@@ -136,9 +145,58 @@ class TransactionFragment : Fragment() {
         // Submit button
         binding.btnSubmit.setOnClickListener {
             // TODO: Handle transaction submission
-            etAmount.text.clear()  // Thiết lập giá trị của etAmount thành rỗng
-            etNote.text.clear()    // Thiết lập giá trị của etNote thành rỗng
+            val db = Room.databaseBuilder(
+                requireContext(),
+                AppDatabase::class.java,
+                "moneyapp.db"
+            ).build()
+            val sharedPref =
+                requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            val userId = sharedPref.getInt("user_id", -1)
 
+            val amountText = binding.etAmount.text.toString()
+            val note = binding.etNote.text.toString()
+
+            val categoryId = selectedCategoryId
+
+
+            if (amountText.isBlank() || categoryId == null) {
+                Toast.makeText(
+                    context,
+                    "Vui lòng nhập số tiền và chọn danh mục",
+                    Toast.LENGTH_SHORT
+                ).show()
+                return@setOnClickListener
+            }
+
+            val amount = amountText.toDoubleOrNull()
+            if (amount == null || amount <= 0) {
+                Toast.makeText(context, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show()
+                return@setOnClickListener
+            }
+            val now = java.time.LocalDateTime.now()
+            val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+            val createdAt = now.format(formatter)
+            val dateOnly = binding.etDate.text
+
+            val transaction = Transaction(
+                user_id = userId,
+                category_id = categoryId,
+                amount = amount,
+                note = if (note.isBlank()) null else note,
+                transaction_date = dateOnly.toString(),
+                created_at = createdAt
+            )
+
+            lifecycleScope.launch {
+                db.transactionDao().insert(transaction)
+                Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
+                Log.d("Insert", "Ngày lưu vào DB: $dateOnly")
+
+                // Reset EditText
+                binding.etAmount.text.clear()
+                binding.etNote.text.clear()
+            }
         }
     }
 
