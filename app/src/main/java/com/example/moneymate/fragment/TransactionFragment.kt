@@ -76,15 +76,18 @@ class TransactionFragment : Fragment() {
         val userId = sharedPref.getInt("user_id", -1)
 
         val category = mutableListOf(
-            Category(0, userId, "Salary", "income", R.drawable.ic_salary, true),
-            Category(1, userId, "Food", "income", R.drawable.ic_food, true),
-            Category(2, userId, "Transport", "income", R.drawable.ic_transport, true),
-            Category(3, userId, "Shopping", "income", R.drawable.ic_shopping, true),
-            Category(4, userId, "Bills", "income", R.drawable.ic_bills, true),
-            Category(5, userId, "Entertainment", "income", R.drawable.ic_entertainment, true),
-            Category(6, userId, "Health", "income", R.drawable.ic_health, true),
-            Category(7, userId, "Education", "income", R.drawable.ic_education, true),
-            Category(8, userId, "Other", "income", R.drawable.ic_other, true)
+            // Income categories
+            Category(0, userId, "Tiền lương", "income", R.drawable.ic_salary, true),
+            Category(0, userId, "Thưởng", "income", R.drawable.ic_gift, true),
+            Category(0, userId, "Lãi ngân hàng", "income", R.drawable.ic_investment, true),
+            Category(0, userId, "Bán hàng", "income", R.drawable.ic_shopping, true),
+            
+            // Expense categories
+            Category(0, userId, "Ăn uống", "expense", R.drawable.ic_food, true),
+            Category(0, userId, "Giải trí", "expense", R.drawable.ic_entertainment, true),
+            Category(0, userId, "Mua sắm", "expense", R.drawable.ic_shopping, true),
+            Category(0, userId, "Đi lại", "expense", R.drawable.ic_transport, true),
+            Category(0, userId, "Y tế", "expense", R.drawable.ic_health, true)
         )
 
         // Insert vào DB trong coroutine
