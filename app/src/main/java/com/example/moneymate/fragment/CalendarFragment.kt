@@ -331,15 +331,16 @@ class CalendarFragment : Fragment() {
             )
         )
 
-        // Set icon based on category
-//        val iconResource = when (transaction.category.name.lowercase()) {
-//            "ăn uống" -> R.drawable.ic_food
-//            "di chuyển" -> R.drawable.ic_transport
-//            "mua sắm" -> R.drawable.ic_shopping
-//            "lương", "thưởng" -> R.drawable.ic_salary
-//            else -> if (transaction.category.type == "income") R.drawable.ic_income else R.drawable.ic_expense
-//        }
-//        iconView.setImageResource(iconResource)
+        // Set icon based on category's icon field
+        transaction.category.icon?.let { iconResource ->
+            iconView.setImageResource(iconResource)
+        } ?: run {
+            // Fallback icon if category doesn't have an icon
+            iconView.setImageResource(
+                if (transaction.category.type == "income") R.drawable.ic_income 
+                else R.drawable.ic_expense
+            )
+        }
 
         // Setup expand/collapse functionality
         expandButton.setOnClickListener {
@@ -352,7 +353,72 @@ class CalendarFragment : Fragment() {
             }
         }
 
+        // Add long press functionality
+        var isLongPressed = false
+        transactionView.setOnLongClickListener {
+            if (!isLongPressed) {
+                isLongPressed = true
+                // Show delete confirmation dialog
+                showDeleteConfirmationDialog(transaction) {
+                    // Remove transaction from view
+                    binding.transactionsContainer.removeView(transactionView)
+                    // Update monthly summary
+                    updateMonthlySummary()
+                }
+            }
+            true
+        }
+
+        // Add touch listener for visual feedback
+        transactionView.setOnTouchListener { v, event ->
+            when (event.action) {
+                android.view.MotionEvent.ACTION_DOWN -> {
+                    // Start scale animation
+                    v.animate()
+                        .scaleX(0.95f)
+                        .scaleY(0.95f)
+                        .setDuration(100)
+                        .start()
+                }
+                android.view.MotionEvent.ACTION_UP, android.view.MotionEvent.ACTION_CANCEL -> {
+                    // Reset scale animation
+                    v.animate()
+                        .scaleX(1f)
+                        .scaleY(1f)
+                        .setDuration(100)
+                        .start()
+                    isLongPressed = false
+                }
+            }
+            false
+        }
+
         binding.transactionsContainer.addView(transactionView)
+    }
+
+    private fun showDeleteConfirmationDialog(
+        transaction: TransactionWithCategory,
+        onDeleteConfirmed: () -> Unit
+    ) {
+        val dialog = android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Xóa giao dịch")
+            .setMessage("Bạn có chắc chắn muốn xóa giao dịch này?")
+            .setPositiveButton("Xóa") { _, _ ->
+                // Delete transaction from database
+                val db = Room.databaseBuilder(
+                    requireContext(),
+                    AppDatabase::class.java,
+                    "moneyapp.db"
+                ).build()
+                lifecycleScope.launch {
+                    db.transactionDao().delete(transaction.transaction)
+                    onDeleteConfirmed()
+                }
+            }
+            .setNegativeButton("Hủy", null)
+            .create()
+
+        dialog.show()
     }
 
     private fun formatCurrency(amount: Double): String {
