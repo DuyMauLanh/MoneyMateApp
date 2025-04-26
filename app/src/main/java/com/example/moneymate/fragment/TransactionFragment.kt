@@ -48,7 +48,7 @@ class TransactionFragment : Fragment() {
     private lateinit var categoryAdapter: CategoryAdapter
     private var selectedIconResId: Int = -1
     private var selectedCategoryId: Int? = null
-    
+
     // Add variables for editing mode
     private var isEditing = false
     private var editingTransactionId: Int = -1
@@ -262,16 +262,16 @@ class TransactionFragment : Fragment() {
                     Toast.makeText(context, "Đã cập nhật giao dịch", Toast.LENGTH_SHORT).show()
                 } else {
                     // Create new transaction
-                    val transaction = Transaction(
-                        user_id = userId,
-                        category_id = categoryId,
-                        amount = amount,
-                        note = if (note.isBlank()) null else note,
+            val transaction = Transaction(
+                user_id = userId,
+                category_id = categoryId,
+                amount = amount,
+                note = if (note.isBlank()) null else note,
                         transaction_date = dateOnly,
-                        created_at = createdAt
-                    )
-                    db.transactionDao().insert(transaction)
-                    Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
+                created_at = createdAt
+            )
+                db.transactionDao().insert(transaction)
+                Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
                 }
 
                 // Clear form and go back if editing

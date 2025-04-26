@@ -36,7 +36,7 @@ class CategoryAdapter(
             deleteButton.visibility = if (adapterPosition == deleteMode && !category.is_default) View.VISIBLE else View.GONE
             
             // Set up click listeners
-            itemView.setOnClickListener {
+            itemView.setOnClickListener { 
                 if (deleteMode == adapterPosition) {
                     // If in delete mode, exit delete mode
                     deleteMode = -1
@@ -48,7 +48,7 @@ class CategoryAdapter(
                     notifyDataSetChanged()
                 }
             }
-
+            
             // Long press to enter delete mode
             itemView.setOnLongClickListener { 
                 if (!category.is_default) {
@@ -59,7 +59,7 @@ class CategoryAdapter(
                 }
                 true
             }
-
+            
             deleteButton.setOnClickListener {
                 if (adapterPosition != RecyclerView.NO_POSITION) {
                     val position = categories.indexOf(category)
@@ -72,7 +72,11 @@ class CategoryAdapter(
                 }
             }
 
-            itemView.isSelected = adapterPosition == selectedItemPosition
+            // Set background based on selection state
+            itemView.setBackgroundResource(
+                if (adapterPosition == selectedItemPosition) R.drawable.selected_category_background
+                else android.R.color.transparent
+            )
         }
     }
 
