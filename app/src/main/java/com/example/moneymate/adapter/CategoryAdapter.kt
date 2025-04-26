@@ -19,58 +19,67 @@ class CategoryAdapter(
     private val VIEW_TYPE_CATEGORY = 0
     private val VIEW_TYPE_ADD = 1
     private var selectedItemPosition = -1
+    private var currentType: String = "income" // Default to income
+    private var filteredCategories: List<Category> = categories.filter { it.type == currentType }
+    private var deleteMode = -1 // Track which item is in delete mode
 
     inner class CategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         private val iconView: ImageView = itemView.findViewById(R.id.categoryIcon)
         private val nameView: TextView = itemView.findViewById(R.id.categoryName)
         private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
-        fun bind(category: Category, position: Int) {
-            category.icon?.let { iconView.setImageResource(it) }
+        fun bind(category: Category) {
+            iconView.setImageResource(category.icon ?: R.drawable.ic_other)
             nameView.text = category.name
             
-            // Show/hide delete button based on selection
-            deleteButton.visibility = if (position == selectedItemPosition) View.VISIBLE else View.GONE
+            // Hide delete button by default and only show for non-default categories
+            deleteButton.visibility = if (adapterPosition == deleteMode && !category.is_default) View.VISIBLE else View.GONE
             
             // Set up click listeners
-            itemView.setOnClickListener { 
-                if (selectedItemPosition == -1) {
-                    onCategoryClick(category)
+            itemView.setOnClickListener {
+                if (deleteMode == adapterPosition) {
+                    // If in delete mode, exit delete mode
+                    deleteMode = -1
+                    notifyItemChanged(adapterPosition)
                 } else {
-                    // If in delete mode, clicking anywhere else exits delete mode
-                    updateSelectedPosition(-1)
+                    // If not in delete mode, handle normal click
+                    onCategoryClick(category)
+                    selectedItemPosition = adapterPosition
+                    notifyDataSetChanged()
                 }
             }
-            
+
+            // Long press to enter delete mode
             itemView.setOnLongClickListener { 
-                updateSelectedPosition(if (selectedItemPosition == position) -1 else position)
+                if (!category.is_default) {
+                    val oldDeleteMode = deleteMode
+                    deleteMode = adapterPosition
+                    notifyItemChanged(oldDeleteMode) // Hide old delete button
+                    notifyItemChanged(deleteMode)    // Show new delete button
+                }
                 true
             }
-            
+
             deleteButton.setOnClickListener {
-                if (position < categories.size) {
-//                    categories.removeAt(position)
-                    notifyItemRemoved(position)
-                    updateSelectedPosition(-1)
+                if (adapterPosition != RecyclerView.NO_POSITION) {
+                    val position = categories.indexOf(category)
+                    if (position != -1) {
+                        categories.removeAt(position)
+                        deleteMode = -1
+                        filteredCategories = categories.filter { it.type == currentType }
+                        notifyDataSetChanged()
+                    }
                 }
             }
+
+            itemView.isSelected = adapterPosition == selectedItemPosition
         }
     }
 
-    inner class AddCategoryViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    inner class AddViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
         init {
-            itemView.setOnClickListener { 
-                updateSelectedPosition(-1)
-                onAddCategoryClick() 
-            }
+            itemView.setOnClickListener { onAddCategoryClick() }
         }
-    }
-
-    private fun updateSelectedPosition(position: Int) {
-        val oldPosition = selectedItemPosition
-        selectedItemPosition = position
-        if (oldPosition != -1) notifyItemChanged(oldPosition)
-        if (position != -1) notifyItemChanged(position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -80,29 +89,40 @@ class CategoryAdapter(
                     .inflate(R.layout.item_category, parent, false)
                 CategoryViewHolder(view)
             }
-            else -> {
+            VIEW_TYPE_ADD -> {
                 val view = LayoutInflater.from(parent.context)
                     .inflate(R.layout.item_add_category, parent, false)
-                AddCategoryViewHolder(view)
+                AddViewHolder(view)
             }
+            else -> throw IllegalArgumentException("Invalid view type")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (holder) {
-            is CategoryViewHolder -> holder.bind(categories[position], position)
-            is AddCategoryViewHolder -> { /* No binding needed */ }
+            is CategoryViewHolder -> holder.bind(filteredCategories[position])
+            is AddViewHolder -> {} // No binding needed for add button
         }
     }
 
-    override fun getItemCount(): Int = categories.size + 1
+    override fun getItemCount(): Int = filteredCategories.size + 1
 
     override fun getItemViewType(position: Int): Int {
-        return if (position < categories.size) VIEW_TYPE_CATEGORY else VIEW_TYPE_ADD
+        return if (position == filteredCategories.size) VIEW_TYPE_ADD else VIEW_TYPE_CATEGORY
+    }
+
+    fun updateType(type: String) {
+        currentType = type
+        deleteMode = -1 // Reset delete mode when switching types
+        filteredCategories = categories.filter { it.type == currentType }
+        notifyDataSetChanged()
     }
 
     fun addCategory(category: Category) {
-        (categories as MutableList).add(category) // Ép kiểu vì `categories` là List
-        notifyItemInserted(categories.size - 1)
+        categories.add(category)
+        if (category.type == currentType) {
+            filteredCategories = categories.filter { it.type == currentType }
+            notifyDataSetChanged()
+        }
     }
 } 

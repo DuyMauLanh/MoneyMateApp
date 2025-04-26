@@ -207,6 +207,7 @@ class TransactionFragment : Fragment() {
                 val isIncome = checkedId == binding.btnIncome.id
                 updateToggleButtonColors(isIncome)
                 updateSubmitButtonWithAnimation(isIncome)
+                categoryAdapter.updateType(if (isIncome) "income" else "expense")
             }
         }
 
@@ -395,15 +396,16 @@ class TransactionFragment : Fragment() {
                 Toast.makeText(context, "Please select an icon", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            val isIncome = binding.toggleGroup.checkedButtonId == binding.btnIncome.id
             val newCategory = Category(
-                user_id = userId,       // truyền user_id hiện tại
+                user_id = userId,
                 name = name,
-                type = "income",           // "income" hoặc "expense"
-                icon = selectedIconResId,       // ví dụ: "ic_food", "ic_gift"
+                type = if (isIncome) "income" else "expense",
+                icon = selectedIconResId,
                 is_default = false
             )
             lifecycleScope.launch {
-                val insertedId = db.categoryDao().insert(newCategory) // trả về id (Long)
+                val insertedId = db.categoryDao().insert(newCategory)
                 val newCategoryWithId = newCategory.copy(id = insertedId.toInt())
                 categoryAdapter.addCategory(newCategoryWithId)
                 dialog.dismiss()
