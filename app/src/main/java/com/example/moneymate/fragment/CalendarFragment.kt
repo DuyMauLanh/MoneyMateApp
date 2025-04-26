@@ -401,6 +401,30 @@ class CalendarFragment : Fragment() {
         onDeleteConfirmed: () -> Unit
     ) {
         val dialog = android.app.AlertDialog.Builder(requireContext())
+            .setTitle("Tùy chọn giao dịch")
+            .setItems(arrayOf("Sửa", "Xóa", "Hủy")) { _, which ->
+                when (which) {
+                    0 -> { // Sửa
+                        navigateToEdit(transaction)
+                    }
+                    1 -> { // Xóa
+                        showDeleteConfirmation(transaction, onDeleteConfirmed)
+                    }
+                    2 -> { // Hủy
+                        // Do nothing, dialog will dismiss automatically
+                    }
+                }
+            }
+            .create()
+
+        dialog.show()
+    }
+
+    private fun showDeleteConfirmation(
+        transaction: TransactionWithCategory,
+        onDeleteConfirmed: () -> Unit
+    ) {
+        android.app.AlertDialog.Builder(requireContext())
             .setTitle("Xóa giao dịch")
             .setMessage("Bạn có chắc chắn muốn xóa giao dịch này?")
             .setPositiveButton("Xóa") { _, _ ->
@@ -416,13 +440,33 @@ class CalendarFragment : Fragment() {
                 }
             }
             .setNegativeButton("Hủy", null)
-            .create()
+            .show()
+    }
 
-        dialog.show()
+    private fun navigateToEdit(transaction: TransactionWithCategory) {
+        // Create a new instance of TransactionFragment
+        val transactionFragment = TransactionFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean("isEditing", true)
+                putInt("transactionId", transaction.transaction.id)
+                putInt("categoryId", transaction.transaction.category_id)
+                putDouble("amount", transaction.transaction.amount)
+                putString("note", transaction.transaction.note)
+                putString("date", transaction.transaction.transaction_date)
+                putString("type", transaction.category.type)
+            }
+        }
+
+        // Replace current fragment with TransactionFragment
+        parentFragmentManager.beginTransaction()
+            .replace(R.id.fragmentContainer, transactionFragment)
+            .addToBackStack(null)
+            .commit()
     }
 
     private fun formatCurrency(amount: Double): String {
-        return String.format("%.0f", amount)
+        val formatter = java.text.DecimalFormat("#,###")
+        return formatter.format(amount)
     }
 
     override fun onDestroyView() {

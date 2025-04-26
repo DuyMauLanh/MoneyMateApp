@@ -11,6 +11,8 @@ import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
 import android.os.Build
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +48,10 @@ class TransactionFragment : Fragment() {
     private lateinit var categoryAdapter: CategoryAdapter
     private var selectedIconResId: Int = -1
     private var selectedCategoryId: Int? = null
-
+    
+    // Add variables for editing mode
+    private var isEditing = false
+    private var editingTransactionId: Int = -1
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +59,34 @@ class TransactionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionBinding.inflate(inflater, container, false)
+        
+        // Get editing information from arguments
+        arguments?.let { args ->
+            isEditing = args.getBoolean("isEditing", false)
+            if (isEditing) {
+                editingTransactionId = args.getInt("transactionId")
+                selectedCategoryId = args.getInt("categoryId")
+                
+                // Pre-fill the form with transaction data
+                binding.etAmount.setText(formatAmount(args.getDouble("amount")))
+                binding.etNote.setText(args.getString("note", ""))
+                binding.etDate.setText(args.getString("date", ""))
+                
+                // Set the correct toggle button based on transaction type
+                val isIncome = args.getString("type") == "income"
+                binding.toggleGroup.check(if (isIncome) binding.btnIncome.id else binding.btnExpense.id)
+                
+                // Update button text for editing mode
+                binding.btnSubmit.text = "Cập nhật"
+            }
+        }
+        
         return binding.root
+    }
+
+    private fun formatAmount(amount: Double): String {
+        val formatter = java.text.DecimalFormat("#,###")
+        return formatter.format(amount)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -80,7 +112,7 @@ class TransactionFragment : Fragment() {
             Category(0, userId, "Tiền lương", "income", R.drawable.ic_salary, true),
             Category(0, userId, "Thưởng", "income", R.drawable.ic_gift, true),
             Category(0, userId, "Lãi ngân hàng", "income", R.drawable.ic_investment, true),
-            Category(0, userId, "Bán hàng", "income", R.drawable.ic_shopping, true),
+            Category(0, userId, "Bán hàng", "income", R.drawable.ic_selling, true),
             
             // Expense categories
             Category(0, userId, "Ăn uống", "expense", R.drawable.ic_food, true),
@@ -131,6 +163,44 @@ class TransactionFragment : Fragment() {
     private fun setupListeners() {
         val etAmount: EditText = binding.etAmount
         val etNote: EditText = binding.etNote
+
+        // Add TextWatcher for amount formatting
+        etAmount.addTextChangedListener(object : TextWatcher {
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            override fun afterTextChanged(s: Editable?) {
+                if (s == null) return
+                
+                // Remove listener to prevent infinite loop
+                etAmount.removeTextChangedListener(this)
+
+                try {
+                    // Remove existing commas
+                    val value = s.toString().replace(",", "")
+                    
+                    // If the string is not empty, format it
+                    if (value.isNotEmpty()) {
+                        val longval = value.toLong()
+                        val formatter = java.text.DecimalFormat("#,###")
+                        val formatted = formatter.format(longval)
+                        
+                        // Set the formatted text
+                        etAmount.setText(formatted)
+                        etAmount.setSelection(formatted.length)
+                    }
+                } catch (e: Exception) {
+                    // If there's any error, keep the original string
+                    etAmount.setText(s.toString())
+                    etAmount.setSelection(s.toString().length)
+                }
+
+                // Add the listener back
+                etAmount.addTextChangedListener(this)
+            }
+        })
+
         // Toggle group listener
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
@@ -147,28 +217,20 @@ class TransactionFragment : Fragment() {
 
         // Submit button
         binding.btnSubmit.setOnClickListener {
-            // TODO: Handle transaction submission
             val db = Room.databaseBuilder(
                 requireContext(),
                 AppDatabase::class.java,
                 "moneyapp.db"
             ).build()
-            val sharedPref =
-                requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val userId = sharedPref.getInt("user_id", -1)
 
-            val amountText = binding.etAmount.text.toString()
+            val amountText = binding.etAmount.text.toString().replace(",", "")
             val note = binding.etNote.text.toString()
-
             val categoryId = selectedCategoryId
 
-
             if (amountText.isBlank() || categoryId == null) {
-                Toast.makeText(
-                    context,
-                    "Vui lòng nhập số tiền và chọn danh mục",
-                    Toast.LENGTH_SHORT
-                ).show()
+                Toast.makeText(context, "Vui lòng nhập số tiền và chọn danh mục", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
@@ -177,28 +239,46 @@ class TransactionFragment : Fragment() {
                 Toast.makeText(context, "Số tiền không hợp lệ", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+
             val now = java.time.LocalDateTime.now()
             val formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
             val createdAt = now.format(formatter)
-            val dateOnly = binding.etDate.text
-
-            val transaction = Transaction(
-                user_id = userId,
-                category_id = categoryId,
-                amount = amount,
-                note = if (note.isBlank()) null else note,
-                transaction_date = dateOnly.toString(),
-                created_at = createdAt
-            )
+            val dateOnly = binding.etDate.text.toString()
 
             lifecycleScope.launch {
-                db.transactionDao().insert(transaction)
-                Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
-                Log.d("Insert", "Ngày lưu vào DB: $dateOnly")
+                if (isEditing) {
+                    // Update existing transaction
+                    val transaction = Transaction(
+                        id = editingTransactionId,
+                        user_id = userId,
+                        category_id = categoryId,
+                        amount = amount,
+                        note = if (note.isBlank()) null else note,
+                        transaction_date = dateOnly,
+                        created_at = createdAt
+                    )
+                    db.transactionDao().update(transaction)
+                    Toast.makeText(context, "Đã cập nhật giao dịch", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Create new transaction
+                    val transaction = Transaction(
+                        user_id = userId,
+                        category_id = categoryId,
+                        amount = amount,
+                        note = if (note.isBlank()) null else note,
+                        transaction_date = dateOnly,
+                        created_at = createdAt
+                    )
+                    db.transactionDao().insert(transaction)
+                    Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
+                }
 
-                // Reset EditText
+                // Clear form and go back if editing
                 binding.etAmount.text.clear()
                 binding.etNote.text.clear()
+                if (isEditing) {
+                    parentFragmentManager.popBackStack()
+                }
             }
         }
     }
@@ -218,6 +298,9 @@ class TransactionFragment : Fragment() {
             setTextColor(if (!isIncome) expenseColor else textColor)
             strokeColor = ColorStateList.valueOf(if (!isIncome) expenseColor else dividerColor)
         }
+
+        // Update amount label text
+        binding.tvAmountLabel.text = getString(if (isIncome) R.string.tien_thu else R.string.tien_chi)
     }
 
     private fun showDatePicker() {
