@@ -2,22 +2,28 @@ package com.example.moneymate.fragment
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.room.Room
 import com.example.moneymate.R
 import com.example.moneymate.adapter.ReportAdapter
+import com.example.moneymate.database.AppDatabase
 import com.example.moneymate.databinding.FragmentReportBinding
 import com.example.moneymate.model.ReportItem
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
+import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -27,6 +33,7 @@ class ReportFragment : Fragment() {
     private val calendar = Calendar.getInstance()
     private val dateFormatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
     private lateinit var reportAdapter: ReportAdapter
+    private var isIncome = true
 
     // Sample data for demonstration
     private val sampleIncomeData = listOf(
@@ -83,7 +90,7 @@ class ReportFragment : Fragment() {
         // Income/Expense toggle
         binding.toggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
-                val isIncome = checkedId == binding.btnIncome.id
+                isIncome = checkedId == binding.btnIncome.id
                 updateToggleButtonColors(isIncome)
                 updateData(isIncome)
             }
@@ -93,6 +100,7 @@ class ReportFragment : Fragment() {
         binding.timeToggleGroup.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 updateDateDisplay()
+                updateData(isIncome)
                 // TODO: Update data based on time period
             }
         }
@@ -105,6 +113,7 @@ class ReportFragment : Fragment() {
                 calendar.add(Calendar.YEAR, -1)
             }
             updateDateDisplay()
+            updateData(isIncome)
             // TODO: Update data for new period
         }
 
@@ -115,22 +124,71 @@ class ReportFragment : Fragment() {
                 calendar.add(Calendar.YEAR, 1)
             }
             updateDateDisplay()
+            updateData(isIncome)
             // TODO: Update data for new period
         }
     }
 
     private fun updateData(isIncome: Boolean) {
-        val data = if (isIncome) sampleIncomeData else sampleExpenseData
-        val total = data.sumOf { it.amount }
-        
+        val db = Room.databaseBuilder(
+            requireContext(),
+            AppDatabase::class.java,
+            "moneyapp.db"
+        ).build()
+
+        val type = if (isIncome) "income" else "expense"
+        val datePrefix = if (binding.btnMonthly.isChecked) {
+            SimpleDateFormat("MM/yyyy", Locale.getDefault()).format(calendar.time)
+        } else {
+            SimpleDateFormat("yyyy", Locale.getDefault()).format(calendar.time)
+        }
+
+        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
+
+        Log.d("debug","$userId  $type $datePrefix")
+
+        lifecycleScope.launch {
+            val reportList = if (binding.btnMonthly.isChecked) {
+                db.transactionDao()
+                    .getMonthlyReport(userId, type, "%$datePrefix")
+
+            } else {
+                db.transactionDao()
+                    .getYearlyReport(userId, type, "%$datePrefix")
+            }
+
+            if (reportList.isEmpty()) {
+                Toast.makeText(requireContext(), "No data available", Toast.LENGTH_SHORT).show()
+                binding.pieChart.clear()
+                reportAdapter.submitList(emptyList())
+                binding.tvTotalAmount.text = "Total: 0đ"
+                return@launch
+            }
+
+            val total = reportList.sumOf { it.totalAmount }
+            val reportItems = reportList.map {
+                ReportItem(
+                    name = it.categoryName,
+                    iconResId = it.categoryIcon ?: 0, // fallback icon nếu null
+                    amount = it.totalAmount.toInt(),
+                    percentage = ((it.totalAmount * 100f) / total).toInt()
+                )
+            }
+
+            binding.tvTotalAmount.text = "Total: ${formatAmount(total.toInt())}đ"
+            setupPieChart(reportItems)
+            reportAdapter.submitList(reportItems)
+        }
+
         // Update total amount
-        binding.tvTotalAmount.text = "Total: ${formatAmount(total)}đ"
-
-        // Update pie chart
-        setupPieChart(data)
-
-        // Update list
-        reportAdapter.submitList(data)
+//        binding.tvTotalAmount.text = "Total: ${formatAmount(total)}đ"
+//
+//        // Update pie chart
+//        setupPieChart(data)
+//
+//        // Update list
+//        reportAdapter.submitList(data)
     }
 
     private fun setupPieChart(data: List<ReportItem>) {

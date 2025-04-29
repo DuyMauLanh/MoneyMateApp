@@ -1,6 +1,7 @@
 package com.example.moneymate.fragment
 
 import android.app.DatePickerDialog
+import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.util.Log
@@ -231,11 +232,14 @@ class CalendarFragment : Fragment() {
             AppDatabase::class.java,
             "moneyapp.db"
         ).build()
+
+        val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+        val userId = sharedPref.getInt("user_id", -1)
         lifecycleScope.launch {
             Log.d("Load", "Đang truy vấn ngày: $formattedDate")
 
             val transactionsForDate =
-                db.transactionDao().getTransactionsWithCategoryByDate(formattedDate)
+                db.transactionDao().getTransactionsWithCategoryByDate(formattedDate, userId)
 
             transactions[formattedDate] = transactionsForDate
 

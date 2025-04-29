@@ -59,28 +59,28 @@ class TransactionFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View {
         _binding = FragmentTransactionBinding.inflate(inflater, container, false)
-        
+
         // Get editing information from arguments
         arguments?.let { args ->
             isEditing = args.getBoolean("isEditing", false)
             if (isEditing) {
                 editingTransactionId = args.getInt("transactionId")
                 selectedCategoryId = args.getInt("categoryId")
-                
+
                 // Pre-fill the form with transaction data
                 binding.etAmount.setText(formatAmount(args.getDouble("amount")))
                 binding.etNote.setText(args.getString("note", ""))
                 binding.etDate.setText(args.getString("date", ""))
-                
+
                 // Set the correct toggle button based on transaction type
                 val isIncome = args.getString("type") == "income"
                 binding.toggleGroup.check(if (isIncome) binding.btnIncome.id else binding.btnExpense.id)
-                
+
                 // Update button text for editing mode
                 binding.btnSubmit.text = "Cập nhật"
             }
         }
-        
+
         return binding.root
     }
 
@@ -113,7 +113,7 @@ class TransactionFragment : Fragment() {
             Category(0, userId, "Thưởng", "income", R.drawable.ic_gift, true),
             Category(0, userId, "Lãi ngân hàng", "income", R.drawable.ic_investment, true),
             Category(0, userId, "Bán hàng", "income", R.drawable.ic_selling, true),
-            
+
             // Expense categories
             Category(0, userId, "Ăn uống", "expense", R.drawable.ic_food, true),
             Category(0, userId, "Giải trí", "expense", R.drawable.ic_entertainment, true),
@@ -159,6 +159,7 @@ class TransactionFragment : Fragment() {
         updateSubmitButtonWithAnimation(true)
     }
 
+    @SuppressLint("SuspiciousIndentation")
     @RequiresApi(Build.VERSION_CODES.O)
     private fun setupListeners() {
         val etAmount: EditText = binding.etAmount
@@ -172,20 +173,20 @@ class TransactionFragment : Fragment() {
 
             override fun afterTextChanged(s: Editable?) {
                 if (s == null) return
-                
+
                 // Remove listener to prevent infinite loop
                 etAmount.removeTextChangedListener(this)
 
                 try {
                     // Remove existing commas
                     val value = s.toString().replace(",", "")
-                    
+
                     // If the string is not empty, format it
                     if (value.isNotEmpty()) {
                         val longval = value.toLong()
                         val formatter = java.text.DecimalFormat("#,###")
                         val formatted = formatter.format(longval)
-                        
+
                         // Set the formatted text
                         etAmount.setText(formatted)
                         etAmount.setSelection(formatted.length)
@@ -223,7 +224,8 @@ class TransactionFragment : Fragment() {
                 AppDatabase::class.java,
                 "moneyapp.db"
             ).build()
-            val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
+            val sharedPref =
+                requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val userId = sharedPref.getInt("user_id", -1)
 
             val amountText = binding.etAmount.text.toString().replace(",", "")
@@ -231,7 +233,11 @@ class TransactionFragment : Fragment() {
             val categoryId = selectedCategoryId
 
             if (amountText.isBlank() || categoryId == null) {
-                Toast.makeText(context, "Vui lòng nhập số tiền và chọn danh mục", Toast.LENGTH_SHORT).show()
+                Toast.makeText(
+                    context,
+                    "Vui lòng nhập số tiền và chọn danh mục",
+                    Toast.LENGTH_SHORT
+                ).show()
                 return@setOnClickListener
             }
 
@@ -262,16 +268,16 @@ class TransactionFragment : Fragment() {
                     Toast.makeText(context, "Đã cập nhật giao dịch", Toast.LENGTH_SHORT).show()
                 } else {
                     // Create new transaction
-            val transaction = Transaction(
-                user_id = userId,
-                category_id = categoryId,
-                amount = amount,
-                note = if (note.isBlank()) null else note,
+                    val transaction = Transaction(
+                        user_id = userId,
+                        category_id = categoryId,
+                        amount = amount,
+                        note = if (note.isBlank()) null else note,
                         transaction_date = dateOnly,
-                created_at = createdAt
-            )
-                db.transactionDao().insert(transaction)
-                Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
+                        created_at = createdAt
+                    )
+                    db.transactionDao().insert(transaction)
+                    Toast.makeText(context, "Đã thêm giao dịch", Toast.LENGTH_SHORT).show()
                 }
 
                 // Clear form and go back if editing
@@ -301,7 +307,8 @@ class TransactionFragment : Fragment() {
         }
 
         // Update amount label text
-        binding.tvAmountLabel.text = getString(if (isIncome) R.string.tien_thu else R.string.tien_chi)
+        binding.tvAmountLabel.text =
+            getString(if (isIncome) R.string.tien_thu else R.string.tien_chi)
     }
 
     private fun showDatePicker() {
