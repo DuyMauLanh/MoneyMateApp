@@ -2,6 +2,7 @@ package com.example.moneymate.fragment
 
 import android.animation.ArgbEvaluator
 import android.animation.ValueAnimator
+import android.app.DatePickerDialog
 import android.content.Context
 import android.content.res.ColorStateList
 import android.os.Bundle
@@ -101,7 +102,6 @@ class ReportFragment : Fragment() {
             if (isChecked) {
                 updateDateDisplay()
                 updateData(isIncome)
-                // TODO: Update data based on time period
             }
         }
 
@@ -114,7 +114,6 @@ class ReportFragment : Fragment() {
             }
             updateDateDisplay()
             updateData(isIncome)
-            // TODO: Update data for new period
         }
 
         binding.btnNext.setOnClickListener {
@@ -125,8 +124,33 @@ class ReportFragment : Fragment() {
             }
             updateDateDisplay()
             updateData(isIncome)
-            // TODO: Update data for new period
         }
+
+        // Add date picker on click
+        binding.tvCurrentPeriod.setOnClickListener {
+            showDatePicker()
+        }
+    }
+
+    private fun showDatePicker() {
+        val datePickerDialog = DatePickerDialog(
+            requireContext(),
+            R.style.SpinnerDatePickerTheme,
+            { _, year, month, _ ->
+                calendar.set(Calendar.YEAR, year)
+                calendar.set(Calendar.MONTH, month)
+                updateDateDisplay()
+                updateData(isIncome)
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+        datePickerDialog.datePicker.apply {
+            calendarViewShown = false
+            spinnersShown = true
+        }
+        datePickerDialog.show()
     }
 
     private fun updateData(isIncome: Boolean) {

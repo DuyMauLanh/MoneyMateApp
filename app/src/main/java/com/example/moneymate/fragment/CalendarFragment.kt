@@ -88,7 +88,7 @@ class CalendarFragment : Fragment() {
 
         val datePickerDialog = DatePickerDialog(
             requireContext(),
-            R.style.MonthYearPickerTheme,
+            R.style.SpinnerDatePickerTheme,
             { _, year, month, _ ->
                 currentDate.set(Calendar.YEAR, year)
                 currentDate.set(Calendar.MONTH, month)
@@ -100,20 +100,10 @@ class CalendarFragment : Fragment() {
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
         )
-
-        // Chỉ hiển thị chọn tháng và năm
-        try {
-            val datePickerField = datePickerDialog.javaClass.getDeclaredField("mDatePicker")
-            datePickerField.isAccessible = true
-            val datePicker = datePickerField.get(datePickerDialog) as DatePicker
-            val daySpinner = datePicker.findViewById<View>(
-                resources.getIdentifier("day", "id", "android")
-            )
-            daySpinner?.visibility = View.GONE
-        } catch (e: Exception) {
-            e.printStackTrace()
+        datePickerDialog.datePicker.apply {
+            calendarViewShown = false
+            spinnersShown = true
         }
-
         datePickerDialog.show()
     }
 

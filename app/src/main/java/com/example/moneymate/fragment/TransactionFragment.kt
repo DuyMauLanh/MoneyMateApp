@@ -312,16 +312,22 @@ class TransactionFragment : Fragment() {
     }
 
     private fun showDatePicker() {
-        DatePickerDialog(
+        val datePickerDialog = DatePickerDialog(
             requireContext(),
-            { _, year, month, dayOfMonth ->
-                calendar.set(year, month, dayOfMonth)
+            R.style.SpinnerDatePickerTheme,
+            { _, year, month, day ->
+                calendar.set(year, month, day)
                 binding.etDate.setText(dateFormatter.format(calendar.time))
             },
             calendar.get(Calendar.YEAR),
             calendar.get(Calendar.MONTH),
             calendar.get(Calendar.DAY_OF_MONTH)
-        ).show()
+        )
+        datePickerDialog.datePicker.apply {
+            calendarViewShown = false
+            spinnersShown = true
+        }
+        datePickerDialog.show()
     }
 
     private fun updateSubmitButtonWithAnimation(isIncome: Boolean) {
