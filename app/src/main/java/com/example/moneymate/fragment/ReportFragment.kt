@@ -36,21 +36,6 @@ class ReportFragment : Fragment() {
     private lateinit var reportAdapter: ReportAdapter
     private var isIncome = true
 
-    // Sample data for demonstration
-    private val sampleIncomeData = listOf(
-        ReportItem("Salary", R.drawable.ic_salary, 6000000, 40),
-        ReportItem("Freelance", R.drawable.ic_freelance, 3000000, 20),
-        ReportItem("Investment", R.drawable.ic_investment, 4000000, 27),
-        ReportItem("Gifts", R.drawable.ic_gift, 2000000, 13)
-    )
-
-    private val sampleExpenseData = listOf(
-        ReportItem("Food", R.drawable.ic_food, 3000000, 30),
-        ReportItem("Transport", R.drawable.ic_transport, 2000000, 20),
-        ReportItem("Shopping", R.drawable.ic_shopping, 2500000, 25),
-        ReportItem("Bills", R.drawable.ic_bills, 1500000, 15),
-        ReportItem("Entertainment", R.drawable.ic_entertainment, 1000000, 10)
-    )
 
     override fun onCreateView(
         inflater: LayoutInflater,

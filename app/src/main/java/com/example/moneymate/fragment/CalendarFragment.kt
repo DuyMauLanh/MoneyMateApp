@@ -460,7 +460,7 @@ class CalendarFragment : Fragment() {
 
     private fun formatCurrency(amount: Double): String {
         val formatter = java.text.DecimalFormat("#,###")
-        return formatter.format(amount)
+        return "${formatter.format(amount)}đ"
     }
 
     override fun onDestroyView() {

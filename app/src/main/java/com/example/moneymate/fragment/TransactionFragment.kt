@@ -135,7 +135,6 @@ class TransactionFragment : Fragment() {
                 categories = categories,
                 onCategoryClick = { category ->
                     selectedCategoryId = category.id
-                    Toast.makeText(context, "Selected: ${category.name}", Toast.LENGTH_SHORT).show()
                 },
                 onAddCategoryClick = {
                     showAddCategoryDialog()
@@ -167,19 +166,19 @@ class TransactionFragment : Fragment() {
 
         // Add TextWatcher for amount formatting
         etAmount.addTextChangedListener(object : TextWatcher {
+            private var isFormatting = false
+
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
             override fun afterTextChanged(s: Editable?) {
-                if (s == null) return
+                if (s == null || isFormatting) return
 
-                // Remove listener to prevent infinite loop
-                etAmount.removeTextChangedListener(this)
-
+                isFormatting = true
                 try {
-                    // Remove existing commas
-                    val value = s.toString().replace(",", "")
+                    // Remove all non-digit characters
+                    val value = s.toString().replace(Regex("[^0-9]"), "")
 
                     // If the string is not empty, format it
                     if (value.isNotEmpty()) {
@@ -187,18 +186,21 @@ class TransactionFragment : Fragment() {
                         val formatter = java.text.DecimalFormat("#,###")
                         val formatted = formatter.format(longval)
 
-                        // Set the formatted text
-                        etAmount.setText(formatted)
-                        etAmount.setSelection(formatted.length)
+                        // Only update if the formatted value is different
+                        if (formatted != s.toString()) {
+                            etAmount.setText(formatted)
+                            etAmount.setSelection(formatted.length)
+                        }
+                    } else {
+                        etAmount.setText("")
                     }
                 } catch (e: Exception) {
                     // If there's any error, keep the original string
                     etAmount.setText(s.toString())
                     etAmount.setSelection(s.toString().length)
+                } finally {
+                    isFormatting = false
                 }
-
-                // Add the listener back
-                etAmount.addTextChangedListener(this)
             }
         })
 
@@ -228,7 +230,7 @@ class TransactionFragment : Fragment() {
                 requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val userId = sharedPref.getInt("user_id", -1)
 
-            val amountText = binding.etAmount.text.toString().replace(",", "")
+            val amountText = binding.etAmount.text.toString().replace(Regex("[^0-9]"), "")
             val note = binding.etNote.text.toString()
             val categoryId = selectedCategoryId
 
