@@ -1,5 +1,6 @@
 package com.example.moneymate.adapter
 
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.ImageButton
@@ -8,9 +9,16 @@ import android.widget.TextView
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moneymate.R
+import com.example.moneymate.database.DatabaseProvider
 import com.example.moneymate.model.Category
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class CategoryAdapter(
+    private val context: Context,
+    private val userId: Int,
     private val categories: MutableList<Category>,
     private val onCategoryClick: (Category) -> Unit,
     private val onAddCategoryClick: () -> Unit
@@ -29,8 +37,11 @@ class CategoryAdapter(
         private val deleteButton: ImageButton = itemView.findViewById(R.id.deleteButton)
 
         fun bind(category: Category) {
+
             iconView.setImageResource(category.icon ?: R.drawable.ic_other)
-            nameView.text = category.name
+            val resId = context.resources.getIdentifier(category.labelKey, "string", context.packageName)
+            val translatedName = if (resId != 0) context.getString(resId) else category.labelKey
+            nameView.text = translatedName
             
             // Hide delete button by default and only show for non-default categories
             deleteButton.visibility = if (adapterPosition == deleteMode && !category.is_default) View.VISIBLE else View.GONE
@@ -50,7 +61,8 @@ class CategoryAdapter(
             }
             
             // Long press to enter delete mode
-            itemView.setOnLongClickListener { 
+            itemView.setOnLongClickListener {
+
                 if (!category.is_default) {
                     val oldDeleteMode = deleteMode
                     deleteMode = adapterPosition
@@ -61,13 +73,21 @@ class CategoryAdapter(
             }
             
             deleteButton.setOnClickListener {
+
                 if (adapterPosition != RecyclerView.NO_POSITION) {
                     val position = categories.indexOf(category)
                     if (position != -1) {
-                        categories.removeAt(position)
-                        deleteMode = -1
-                        filteredCategories = categories.filter { it.type == currentType }
-                        notifyDataSetChanged()
+                        CoroutineScope(Dispatchers.IO).launch {
+                            val db = DatabaseProvider.getInstance(context)
+                            db.categoryDao().delete(category)
+
+                            withContext(Dispatchers.Main) {
+                                categories.removeAt(position)
+                                deleteMode = -1
+                                filteredCategories = categories.filter { it.type == currentType }
+                                notifyDataSetChanged()
+                            }
+                        }
                     }
                 }
             }

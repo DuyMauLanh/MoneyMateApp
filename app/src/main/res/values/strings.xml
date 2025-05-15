@@ -18,25 +18,64 @@
     <string name="facebook_sign_in">Sign in with Facebook</string>
     <string name="welcome_back">Welcome back! Please enter your details</string>
     <string name="forgot_password">Forgot password?</string>
+
     <!-- Transaction Screen -->
-    <string name="tien_thu">Tiền thu</string>
-    <string name="tien_chi">Tiền chi</string>
-    <string name="amount_hint">Số tiền</string>
-    <string name="date_hint">Ngày</string>
-    <string name="note_hint">Ghi chú</string>
-    <string name="category_title">Danh mục</string>
-    <string name="add_category">Thêm danh mục</string>
-    <string name="add_income">Nhập khoản thu</string>
-    <string name="add_expense">Nhập khoản chi</string>
-    <string name="income_categories">Danh mục thu</string>
-    <string name="expense_categories">Danh mục chi</string>
+    <string name="tien_thu">Income</string>
+    <string name="tien_chi">Expense</string>
+    <string name="amount_hint">Amount</string>
+    <string name="date_hint">Date</string>
+    <string name="note_hint">Note</string>
+    <string name="category_title">Category</string>
+    <string name="add_category">Add category</string>
+    <string name="add_income">Add income</string>
+    <string name="add_expense">Add expense</string>
+    <string name="income_categories">Income categories</string>
+    <string name="expense_categories">Expense categories</string>
+
     <!-- Bottom Navigation -->
-    <string name="nav_add">Nhập</string>
-    <string name="nav_report">Báo cáo</string>
-    <string name="nav_calendar">Lịch</string>
-    <string name="nav_more">Khác</string>
-    <string name="input">Input</string>
+    <string name="nav_add">Add</string>
+    <string name="nav_report">Report</string>
+    <string name="nav_calendar">Calendar</string>
+    <string name="nav_more">More</string>
+    <string name="input">Add</string>
     <string name="report">Report</string>
     <string name="calendar">Calendar</string>
     <string name="more">More</string>
+    <string name="date_now">April 1, 2025</string>
+    <string name="mo">Mo</string>
+    <string name="tu">Tu</string>
+    <string name="we">We</string>
+    <string name="th">Th</string>
+    <string name="fr">Fr</string>
+    <string name="sa">Sa</string>
+    <string name="su">Su</string>
+    <string name="thu">Income</string>
+    <string name="t_ng">Total</string>
+    <string name="chi">Expense</string>
+    <string name="th_ng_4_2025">Month 4 2025</string>
+    <string name="kh_ng_c_giao_d_ch_n_o_cho_ng_y_n_y">No transactions for this day</string>
+    <string name="th_ng" translatable="false">month %1$s %2$s</string>
+    <string name="monthly">Monthly</string>
+    <string name="yearly">Yearly</string>
+    <string name="total">Total: %1$sđ</string>
+    <string name="ch_n_ng_n_ng">Select language</string>
+    <string name="s_ng">Light</string>
+    <string name="t_i">Dark</string>
+    <string name="theo_h_th_ng">System</string>
+    <string name="ch_n_m_u_s_c">Select color</string>
+    <string name="kh_c">Other</string>
+    <string name="ng_n_ng">Languages</string>
+    <string name="m_u_s_c">Colors</string>
+    <string name="category">Category</string>
+    <string name="category_salary">Salary</string>
+    <string name="category_bonus">Bonus</string>
+    <string name="category_interest">Bank Interest</string>
+    <string name="category_sales">Sales</string>
+    <string name="category_food">Food</string>
+    <string name="category_entertainment">Entertainment</string>
+    <string name="category_shopping">Shopping</string>
+    <string name="category_transport">Transport</string>
+    <string name="category_health">Health</string>
+    <string name="ghi_ch">Note:</string>
+
 </resources>

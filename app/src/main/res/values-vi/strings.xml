@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Money Mate</string>
+    <string name="welcome_title">Kiểm soát tài chính của bạn</string>
+    <string name="welcome_description">Theo dõi chi tiêu, đặt ngân sách và đạt được mục tiêu tài chính một cách dễ dàng!</string>
+    <string name="sign_up">Đăng ký</string>
+    <string name="login">Đăng nhập</string>
+    <string name="already_have_account">Đã có tài khoản? </string>
+    <string name="dont_have_account">Chưa có tài khoản? </string>
+    <string name="create_account">Tạo tài khoản</string>
+    <string name="email_hint">Địa chỉ email</string>
+    <string name="password_hint">Mật khẩu</string>
+    <string name="name_hint">Họ và tên</string>
+    <string name="terms_text">Tôi đồng ý với Chính sách bảo mật và Điều khoản sử dụng</string>
+    <string name="or_continue_with">Hoặc tiếp tục với</string>
+    <string name="google_sign_in">Đăng nhập bằng Google</string>
+    <string name="apple_sign_in">Đăng nhập bằng Apple</string>
+    <string name="facebook_sign_in">Đăng nhập bằng Facebook</string>
+    <string name="welcome_back">Chào mừng trở lại! Vui lòng nhập thông tin của bạn</string>
+    <string name="forgot_password">Quên mật khẩu?</string>
+
+    <!-- Transaction Screen -->
+    <string name="tien_thu">Thu nhập</string>
+    <string name="tien_chi">Chi tiêu</string>
+    <string name="amount_hint">Số tiền</string>
+    <string name="date_hint">Ngày</string>
+    <string name="note_hint">Ghi chú</string>
+    <string name="category_title">Danh mục</string>
+    <string name="add_category">Thêm danh mục</string>
+    <string name="add_income">Thêm thu nhập</string>
+    <string name="add_expense">Thêm chi tiêu</string>
+    <string name="income_categories">Danh mục thu nhập</string>
+    <string name="expense_categories">Danh mục chi tiêu</string>
+
+    <!-- Bottom Navigation -->
+    <string name="nav_add">Thêm</string>
+    <string name="nav_report">Báo cáo</string>
+    <string name="nav_calendar">Lịch</string>
+    <string name="nav_more">Khác</string>
+    <string name="input">Thêm</string>
+    <string name="report">Báo cáo</string>
+    <string name="calendar">Lịch</string>
+    <string name="more">Khác</string>
+    <string name="date_now">Ngày 1 Tháng 4 Năm 2025</string>
+    <string name="mo">Thứ Hai</string>
+    <string name="tu">Ba</string>
+    <string name="we">Tư</string>
+    <string name="th">Năm</string>
+    <string name="fr">Sáu</string>
+    <string name="sa">Bảy</string>
+    <string name="su">CN</string>
+    <string name="thu">Thu</string>
+    <string name="t_ng">Tổng</string>
+    <string name="chi">Chi</string>
+    <string name="th_ng_4_2025">Tháng 4 2025</string>
+    <string name="kh_ng_c_giao_d_ch_n_o_cho_ng_y_n_y">Không có giao dịch nào cho ngày này</string>
+    <string name="th_ng" translatable="false">Tháng %1$s %2$s</string>
+    <string name="monthly">Theo Tháng</string>
+    <string name="yearly">Theo Năm</string>
+    <string name="total">Tổng: %1$sđ</string>
+    <string name="ch_n_ng_n_ng">Chọn ngôn ngữ</string>
+    <string name="s_ng">Sáng</string>
+    <string name="t_i">Tối</string>
+    <string name="theo_h_th_ng">Theo hệ thống</string>
+    <string name="ch_n_m_u_s_c">Chọn màu sắc</string>
+    <string name="kh_c">Khác</string>
+    <string name="ng_n_ng">Ngôn ngữ</string>
+    <string name="m_u_s_c">Màu sắc</string>
+    <string name="category">Danh mục</string>
+    <string name="category_salary">Tiền lương</string>
+    <string name="category_bonus">Thưởng</string>
+    <string name="category_interest">Lãi ngân hàng</string>
+    <string name="category_sales">Bán hàng</string>
+    <string name="category_food">Ăn uống</string>
+    <string name="category_entertainment">Giải trí</string>
+    <string name="category_shopping">Mua sắm</string>
+    <string name="category_transport">Đi lại</string>
+    <string name="category_health">Y tế</string>
+    <string name="ghi_ch">Ghi chú:</string>
+
+
+</resources>

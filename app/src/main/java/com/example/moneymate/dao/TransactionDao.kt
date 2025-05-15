@@ -41,7 +41,7 @@ interface TransactionDao {
     @androidx.room.Transaction
     @Query(
         """
-    SELECT c.name AS categoryName, 
+    SELECT c.labelKey AS categoryName, 
            c.icon AS categoryIcon, 
            SUM(t.amount) AS totalAmount
     FROM transactions t
@@ -61,7 +61,7 @@ interface TransactionDao {
     @androidx.room.Transaction
     @Query(
         """
-    SELECT c.name AS categoryName, 
+    SELECT c.labelKey AS categoryName, 
            c.icon AS categoryIcon, 
            SUM(t.amount) AS totalAmount
     FROM transactions t

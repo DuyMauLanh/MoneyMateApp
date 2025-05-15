@@ -19,6 +19,7 @@ import androidx.room.Room
 import com.example.moneymate.R
 import com.example.moneymate.adapter.ReportAdapter
 import com.example.moneymate.database.AppDatabase
+import com.example.moneymate.database.DatabaseProvider
 import com.example.moneymate.databinding.FragmentReportBinding
 import com.example.moneymate.model.ReportItem
 import com.github.mikephil.charting.data.PieData
@@ -139,11 +140,13 @@ class ReportFragment : Fragment() {
     }
 
     private fun updateData(isIncome: Boolean) {
-        val db = Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java,
-            "moneyapp.db"
-        ).build()
+//        val db = Room.databaseBuilder(
+//            requireContext(),
+//            AppDatabase::class.java,
+//            "moneyapp.db"
+//        ).build()
+        val db = DatabaseProvider.getInstance(requireContext())
+
 
         val type = if (isIncome) "income" else "expense"
         val datePrefix = if (binding.btnMonthly.isChecked) {
@@ -177,15 +180,18 @@ class ReportFragment : Fragment() {
 
             val total = reportList.sumOf { it.totalAmount }
             val reportItems = reportList.map {
+                val resId = resources.getIdentifier(it.categoryName, "string", requireContext().packageName)
+                val translatedName = if (resId != 0) requireContext().getString(resId) else it.categoryName
+
                 ReportItem(
-                    name = it.categoryName,
+                    name = translatedName,
                     iconResId = it.categoryIcon ?: 0, // fallback icon nếu null
                     amount = it.totalAmount.toInt(),
                     percentage = ((it.totalAmount * 100f) / total).toInt()
                 )
             }
 
-            binding.tvTotalAmount.text = "Total: ${formatAmount(total.toInt())}đ"
+            binding.tvTotalAmount.text = getString(R.string.total, formatAmount(total.toInt()))
             setupPieChart(reportItems)
             reportAdapter.submitList(reportItems)
         }

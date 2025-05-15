@@ -99,14 +99,14 @@
                 style="@style/Widget.MoneyMate.Button.Toggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Monthly" />
+                android:text="@string/monthly" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnYearly"
                 style="@style/Widget.MoneyMate.Button.Toggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Yearly" />
+                android:text="@string/yearly" />
 
         </com.google.android.material.button.MaterialButtonToggleGroup>
 

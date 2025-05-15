@@ -26,11 +26,10 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
-import androidx.room.Room
 import com.example.moneymate.R
 import com.example.moneymate.adapter.CategoryAdapter
 import com.example.moneymate.adapter.IconAdapter
-import com.example.moneymate.database.AppDatabase
+import com.example.moneymate.database.DatabaseProvider
 import com.example.moneymate.databinding.FragmentTransactionBinding
 import com.example.moneymate.model.Category
 import com.example.moneymate.model.Transaction
@@ -99,28 +98,38 @@ class TransactionFragment : Fragment() {
 
     @SuppressLint("SuspiciousIndentation")
     private fun setupCategoryGrid() {
-        val db = Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java,
-            "moneyapp.db"
-        ).build()
+        val db = DatabaseProvider.getInstance(requireContext())
+
         val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
 
+//        val category = mutableListOf(
+//            // Income categories
+//            Category(0, userId, "Tiền lương", "income", R.drawable.ic_salary, true),
+//            Category(0, userId, "Thưởng", "income", R.drawable.ic_gift, true),
+//            Category(0, userId, "Lãi ngân hàng", "income", R.drawable.ic_investment, true),
+//            Category(0, userId, "Bán hàng", "income", R.drawable.ic_selling, true),
+//
+//            // Expense categories
+//            Category(0, userId, "Ăn uống", "expense", R.drawable.ic_food, true),
+//            Category(0, userId, "Giải trí", "expense", R.drawable.ic_entertainment, true),
+//            Category(0, userId, "Mua sắm", "expense", R.drawable.ic_shopping, true),
+//            Category(0, userId, "Đi lại", "expense", R.drawable.ic_transport, true),
+//            Category(0, userId, "Y tế", "expense", R.drawable.ic_health, true)
+//        )
         val category = mutableListOf(
-            // Income categories
-            Category(0, userId, "Tiền lương", "income", R.drawable.ic_salary, true),
-            Category(0, userId, "Thưởng", "income", R.drawable.ic_gift, true),
-            Category(0, userId, "Lãi ngân hàng", "income", R.drawable.ic_investment, true),
-            Category(0, userId, "Bán hàng", "income", R.drawable.ic_selling, true),
+            Category(0, userId, "category_salary", "income", R.drawable.ic_salary, true),
+            Category(0, userId, "category_bonus", "income", R.drawable.ic_gift, true),
+            Category(0, userId, "category_interest", "income", R.drawable.ic_investment, true),
+            Category(0, userId, "category_sales", "income", R.drawable.ic_selling, true),
 
-            // Expense categories
-            Category(0, userId, "Ăn uống", "expense", R.drawable.ic_food, true),
-            Category(0, userId, "Giải trí", "expense", R.drawable.ic_entertainment, true),
-            Category(0, userId, "Mua sắm", "expense", R.drawable.ic_shopping, true),
-            Category(0, userId, "Đi lại", "expense", R.drawable.ic_transport, true),
-            Category(0, userId, "Y tế", "expense", R.drawable.ic_health, true)
+            Category(0, userId, "category_food", "expense", R.drawable.ic_food, true),
+            Category(0, userId, "category_entertainment", "expense", R.drawable.ic_entertainment, true),
+            Category(0, userId, "category_shopping", "expense", R.drawable.ic_shopping, true),
+            Category(0, userId, "category_transport", "expense", R.drawable.ic_transport, true),
+            Category(0, userId, "category_health", "expense", R.drawable.ic_health, true)
         )
+
 
         // Insert vào DB trong coroutine
         lifecycleScope.launch {
@@ -138,7 +147,9 @@ class TransactionFragment : Fragment() {
                 },
                 onAddCategoryClick = {
                     showAddCategoryDialog()
-                }
+                },
+                userId = userId,
+                context = requireContext()
             )
             binding.categoryRecyclerView.apply {
                 layoutManager = GridLayoutManager(context, 3)
@@ -221,11 +232,8 @@ class TransactionFragment : Fragment() {
 
         // Submit button
         binding.btnSubmit.setOnClickListener {
-            val db = Room.databaseBuilder(
-                requireContext(),
-                AppDatabase::class.java,
-                "moneyapp.db"
-            ).build()
+            val db = DatabaseProvider.getInstance(requireContext())
+
             val sharedPref =
                 requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
             val userId = sharedPref.getInt("user_id", -1)
@@ -356,11 +364,9 @@ class TransactionFragment : Fragment() {
     }
 
     private fun showAddCategoryDialog() {
-        val db = Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java,
-            "moneyapp.db"
-        ).build()
+
+        val db = DatabaseProvider.getInstance(requireContext())
+
         val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
         val dialog = Dialog(requireContext())
@@ -414,7 +420,7 @@ class TransactionFragment : Fragment() {
             val isIncome = binding.toggleGroup.checkedButtonId == binding.btnIncome.id
             val newCategory = Category(
                 user_id = userId,
-                name = name,
+                labelKey = name,
                 type = if (isIncome) "income" else "expense",
                 icon = selectedIconResId,
                 is_default = false

@@ -177,7 +177,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="24dp"
                 android:layout_marginStart="4dp"
-                android:text="Category"
+                android:text="@string/category"
                 android:textStyle="bold"
                 android:textSize="16sp" />
 

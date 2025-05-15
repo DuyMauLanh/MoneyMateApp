@@ -6,6 +6,7 @@
         <item name="colorPrimary">@color/primary_color</item>
         <item name="colorPrimaryVariant">@color/primary_dark</item>
         <item name="colorOnPrimary">@color/black</item>
+
         <!-- Secondary brand color. -->
         <item name="colorSecondary">@color/accent_color</item>
         <item name="colorSecondaryVariant">@color/accent_color</item>

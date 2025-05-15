@@ -1,5 +1,6 @@
 package com.example.moneymate.fragment
 
+import android.annotation.SuppressLint
 import android.app.DatePickerDialog
 import android.content.Context
 import android.graphics.Color
@@ -16,6 +17,7 @@ import androidx.lifecycle.lifecycleScope
 import androidx.room.Room
 import com.example.moneymate.R
 import com.example.moneymate.database.AppDatabase
+import com.example.moneymate.database.DatabaseProvider
 import com.example.moneymate.databinding.FragmentCalendarBinding
 import com.example.moneymate.model.TransactionWithCategory
 import kotlinx.coroutines.launch
@@ -107,9 +109,14 @@ class CalendarFragment : Fragment() {
         datePickerDialog.show()
     }
 
+    @SuppressLint("StringFormatMatches")
     private fun updateMonthYearDisplay() {
         val monthYear =
-            "tháng ${currentDate.get(Calendar.MONTH) + 1} ${currentDate.get(Calendar.YEAR)}"
+            getString(
+                R.string.th_ng,
+                currentDate.get(Calendar.MONTH) + 1,
+                currentDate.get(Calendar.YEAR)
+            )
         binding.tvMonthYear.text = monthYear
     }
 
@@ -208,7 +215,8 @@ class CalendarFragment : Fragment() {
     }
 
     private fun updateSelectedDateDisplay() {
-        val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale("vi"))
+        val currentLocale = resources.configuration.locales[0]
+        val dateFormat = SimpleDateFormat("dd MMMM yyyy", currentLocale)
         binding.tvSelectedDate.text = dateFormat.format(selectedDate.time)
         loadSampleTransactions()
     }
@@ -217,11 +225,8 @@ class CalendarFragment : Fragment() {
         // Sample transactions for demonstration
         val formattedDate = dateFormat.format(selectedDate.time)
 
-        val db = Room.databaseBuilder(
-            requireContext(),
-            AppDatabase::class.java,
-            "moneyapp.db"
-        ).build()
+        val db = DatabaseProvider.getInstance(requireContext())
+
 
         val sharedPref = requireContext().getSharedPreferences("user_prefs", Context.MODE_PRIVATE)
         val userId = sharedPref.getInt("user_id", -1)
@@ -246,7 +251,7 @@ class CalendarFragment : Fragment() {
 
         if (dateTransactions.isEmpty()) {
             val noTransactionsText = TextView(requireContext()).apply {
-                text = "Không có giao dịch nào cho ngày này"
+                text = context.getString(R.string.kh_ng_c_giao_d_ch_n_o_cho_ng_y_n_y)
                 textSize = 16f
                 gravity = android.view.Gravity.CENTER
                 setPadding(16, 16, 16, 16)
@@ -305,7 +310,11 @@ class CalendarFragment : Fragment() {
         val expandButton = transactionView.findViewById<ImageButton>(R.id.btnExpandTransaction)
 
         // Set category name
-        categoryView.text = transaction.category.name
+        val resId = resources.getIdentifier(transaction.category.labelKey, "string", requireContext().packageName)
+        val translatedName = if (resId != 0) requireContext().getString(resId) else transaction.category.labelKey
+
+        categoryView.text = translatedName
+
 
         // Set amount with color
         amountView.text = formatCurrency(transaction.transaction.amount)
@@ -423,11 +432,13 @@ class CalendarFragment : Fragment() {
             .setMessage("Bạn có chắc chắn muốn xóa giao dịch này?")
             .setPositiveButton("Xóa") { _, _ ->
                 // Delete transaction from database
-                val db = Room.databaseBuilder(
-                    requireContext(),
-                    AppDatabase::class.java,
-                    "moneyapp.db"
-                ).build()
+//                val db = Room.databaseBuilder(
+//                    requireContext(),
+//                    AppDatabase::class.java,
+//                    "moneyapp.db"
+//                ).build()
+                val db = DatabaseProvider.getInstance(requireContext())
+
                 lifecycleScope.launch {
                     db.transactionDao().delete(transaction.transaction)
                     onDeleteConfirmed()

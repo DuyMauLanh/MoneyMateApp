@@ -1,5 +1,7 @@
 package com.example.moneymate
 
+import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -9,6 +11,7 @@ import com.example.moneymate.fragment.MoreFragment
 import com.example.moneymate.fragment.ReportFragment
 import com.example.moneymate.fragment.TransactionFragment
 import com.google.android.material.bottomnavigation.BottomNavigationView
+import java.util.Locale
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
@@ -24,6 +27,16 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.fragmentContainer, TransactionFragment())
                 .commit()
         }
+    }
+
+    override fun attachBaseContext(newBase: Context) {
+        val sharedPrefs = newBase.getSharedPreferences("settings", Context.MODE_PRIVATE)
+        val lang = sharedPrefs.getString("lang", "en") ?: "en"
+        val locale = Locale(lang)
+        val config = Configuration()
+        config.setLocale(locale)
+        val context = newBase.createConfigurationContext(config)
+        super.attachBaseContext(context)
     }
 
     private fun setupBottomNavigation() {

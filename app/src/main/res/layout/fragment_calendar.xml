@@ -47,7 +47,7 @@
                     android:clickable="true"
                     android:focusable="true"
                     android:padding="8dp"
-                    android:text="tháng 4 2025"
+                    android:text="@string/th_ng_4_2025"
                     android:textSize="18sp"
                     android:textStyle="bold" />
 
@@ -73,7 +73,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Mo"
+                    android:text="@string/mo"
                     android:textStyle="bold" />
 
                 <TextView
@@ -82,7 +82,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Tu"
+                    android:text="@string/tu"
                     android:textStyle="bold" />
 
                 <TextView
@@ -91,7 +91,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="We"
+                    android:text="@string/we"
                     android:textStyle="bold" />
 
                 <TextView
@@ -100,7 +100,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Th"
+                    android:text="@string/th"
                     android:textStyle="bold" />
 
                 <TextView
@@ -109,7 +109,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Fr"
+                    android:text="@string/fr"
                     android:textStyle="bold" />
 
                 <TextView
@@ -118,7 +118,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Sa"
+                    android:text="@string/sa"
                     android:textStyle="bold" />
 
                 <TextView
@@ -127,7 +127,7 @@
                     android:layout_columnWeight="1"
                     android:gravity="center"
                     android:padding="8dp"
-                    android:text="Su"
+                    android:text="@string/su"
                     android:textStyle="bold" />
             </GridLayout>
 
@@ -155,7 +155,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Thu"
+                    android:text="@string/thu"
                     android:textColor="@color/income_color"
                     android:textStyle="bold" />
 
@@ -164,7 +164,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Tổng"
+                    android:text="@string/t_ng"
                     android:textStyle="bold" />
 
                 <TextView
@@ -172,7 +172,7 @@
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:gravity="center"
-                    android:text="Chi"
+                    android:text="@string/chi"
                     android:textColor="@color/expense_color"
                     android:textStyle="bold" />
             </LinearLayout>
@@ -219,7 +219,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:gravity="center"
-        android:text="Ngày 1 Tháng 4 Năm 2025"
+        android:text="@string/date_now"
         android:textSize="18sp"
         android:textStyle="bold"
         app:layout_constraintTop_toBottomOf="@id/calendarCardView" />
