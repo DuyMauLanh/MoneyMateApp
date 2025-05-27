@@ -12,7 +12,7 @@
 
 - 📊 **Theo dõi thu nhập & chi tiêu**: Ghi chép và phân loại từng khoản thu – chi hằng ngày.
 - 📅 **Thống kê theo thời gian**: Xem báo cáo ngày, tuần, tháng bằng biểu đồ trực quan.
-- ☁️ **Lưu trữ dữ liệu**: Dữ liệu cá nhân được lưu trữ an toàn trên nền tảng (Firebase/Local storage tuỳ cấu hình).
+- ☁️ **Lưu trữ dữ liệu**: Dữ liệu cá nhân được lưu trữ an toàn trên nền tảng (Room storage tuỳ cấu hình).
 - 🔐 **Bảo mật thông tin**: Đảm bảo an toàn và riêng tư cho người dùng.
 
 ---
