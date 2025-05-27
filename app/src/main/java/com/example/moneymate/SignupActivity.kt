@@ -49,14 +49,31 @@ class SignupActivity : AppCompatActivity() {
             val email: String = binding.etEmail.text.toString().trim()
             val password: String = binding.etPassword.text.toString().trim()
             val cbTerms: MaterialCheckBox = findViewById(R.id.cbTerms)
-
+            var isValid = true
             val userDao = db.userDao()
+            binding.tilEmail.error = null
+            binding.tilPassword.error = null
 
             if (name.isEmpty() || email.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Vui lòng điền đầy đủ thông tin", Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
+            if (email.isEmpty()) {
+                binding.tilEmail.error = "Email không được để trống"
+                isValid = false
+            } else if (!email.endsWith("@gmail.com", ignoreCase = true)) {
+                binding.tilEmail.error = "Email phải kết thúc bằng @gmail.com"
+                isValid = false
+            }
 
+            if (password.isEmpty()) {
+                binding.tilPassword.error = "Mật khẩu không được để trống"
+                isValid = false
+            } else if (password.length < 8) {
+                binding.tilPassword.error = "Mật khẩu phải có ít nhất 8 ký tự"
+                isValid = false
+            }
+            if (!isValid) return@setOnClickListener
             if (!cbTerms.isChecked) {
                 Toast.makeText(this, "Bạn cần đồng ý với chính sách bảo mật để tiếp tục.", Toast.LENGTH_SHORT).show()
             } else {

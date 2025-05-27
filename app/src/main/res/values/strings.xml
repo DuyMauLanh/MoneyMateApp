@@ -77,5 +77,31 @@
     <string name="category_transport">Transport</string>
     <string name="category_health">Health</string>
     <string name="ghi_ch">Note:</string>
-
+    <string name="doi_mat_khau">Change Password</string>
+    <string name="dang_xuat">Logout</string>
+    <string name="ban_chac_chan_muon_dang_xuat">Are you sure logout?</string>
+    <string name="co">Yes</string>
+    <string name="khong">No</string>
+    <string name="m_t_kh_u_x_c_nh_n_kh_ng_kh_p">Password confirmation does not match</string>
+    <string name="kh_ng_t_m_th_y_ng_i_d_ng">User not found</string>
+    <string name="m_t_kh_u_hi_n_t_i_kh_ng_ng">Current password is incorrect</string>
+    <string name="i_m_t_kh_u_th_nh_c_ng">Password changed successfully</string>
+    <string name="m_t_kh_u_hi_n_t_i">Current password</string>
+    <string name="m_t_kh_u_m_i">New password</string>
+    <string name="x_c_nh_n_m_t_kh_u">Confirm password</string>
+    <string name="i_m_t_kh_u">Change password</string>
+    <string name="email_kh_ng_t_n_t_i">Email does not exist</string>
+    <string name="m_t_kh_u_m_i_c_g_i_n_email">New password has been sent to your email</string>
+    <string name="kh_ng_th_g_i_email_vui_l_ng_th_l_i_sau">Unable to send email. Please try again later</string>
+    <string name="kh_i_ph_c_m_t_kh_u">Recover password</string>
+    <string name="m_t_kh_u_m_i_c_a_b_n_l">Your new password is: %1$s</string>
+    <string name="vui_l_ng_i_n_y_th_ng_tin">Please fill in all the information</string>
+    <string name="ng_nh_p_th_nh_c_ng">Login successful</string>
+    <string name="email_ho_c_m_t_kh_u_kh_ng_ng">Email or password is incorrect</string>
+    <string name="qu_n_m_t_kh_u">Forgot password</string>
+    <string name="nh_p_email_ng_k">Enter registered email</string>
+    <string name="x_c_nh_n">Confirm</string>
+    <string name="h_y">Cancel</string>
+    <string name="email_c_g_i">Email has been sent</string>
+    <string name="g_i_email_th_t_b_i">Failed to send email</string>
 </resources>
